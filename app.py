@@ -6,6 +6,22 @@ import plotly.express as px
 import time
 import os
 
+# Function to manually load .env file if it exists
+def load_dotenv(filepath=".env"):
+    if os.path.exists(filepath):
+        with open(filepath, "r", encoding="utf-8") as f:
+            for line in f:
+                line = line.strip()
+                if line and not line.startswith("#"):
+                    if "=" in line:
+                        key, val = line.split("=", 1)
+                        # Remove whitespace and surrounding quotes
+                        val = val.strip().strip("'\"")
+                        os.environ[key.strip()] = val
+
+# Load environment variables from .env
+load_dotenv()
+
 # Import components
 from styles import CUSTOM_CSS
 from simulation_engine import (
@@ -28,8 +44,8 @@ st.set_page_config(
 st.markdown(CUSTOM_CSS, unsafe_allow_html=True)
 
 # ----------------- CONFIGURATION -----------------
-# Pre-populated with your Groq API Key
-GROQ_API_KEY = "YOUR_API_KEY_HERE"
+# API Key is loaded dynamically from the environment (.env file or system environment)
+GROQ_API_KEY = os.environ.get("GROQ_API_KEY", "")
 
 # ----------------- SESSION STATE INITIALIZATION -----------------
 if "demographics" not in st.session_state:
@@ -41,7 +57,7 @@ if "demographics" not in st.session_state:
     }
 
 # Determine default mode based on API key availability
-default_key = GROQ_API_KEY if GROQ_API_KEY != "YOUR_API_KEY_HERE" and GROQ_API_KEY.strip() != "" else os.environ.get("GROQ_API_KEY", "")
+default_key = GROQ_API_KEY.strip() if GROQ_API_KEY.strip() != "" else ""
 
 if "api_mode" not in st.session_state:
     st.session_state.api_mode = "Groq Live API Mode" if default_key else "Simulation Mode"
