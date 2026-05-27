@@ -19,3 +19,6 @@
 
 # Personalized Treatment Plan
 <img width="1581" height="855" alt="image" src="https://github.com/user-attachments/assets/016e9b6c-b89f-4db9-be19-fcadc536d9ec" />
+
+# Chatbot Page
+<img width="1563" height="838" alt="image" src="https://github.com/user-attachments/assets/79bac669-ae34-48ca-b5c6-45b4ff2044f8" />
