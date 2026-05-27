@@ -10,4 +10,7 @@
 <img width="1841" height="851" alt="image" src="https://github.com/user-attachments/assets/04c9ac25-707c-4161-9ca8-4fff59e9f5c5" />
 
 # Home Page
-![Uploading image.png…]()
+
+# Vitals and Analytics Page
+<img width="1898" height="860" alt="image" src="https://github.com/user-attachments/assets/7096261d-743d-4bcf-89c0-d6b9ac4a66bc" />
+
