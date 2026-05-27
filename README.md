@@ -9,5 +9,5 @@
 
 <img width="1841" height="851" alt="image" src="https://github.com/user-attachments/assets/04c9ac25-707c-4161-9ca8-4fff59e9f5c5" />
 
-
-<img width="1915" height="862" alt="image" src="https://github.com/user-attachments/assets/e86ae1c9-1dc0-44f0-91da-448b5cbcf5a2" />
+# Home Page
+![Uploading image.png…]()
