@@ -188,7 +188,7 @@ DEFAULT_ANALYSIS = {
 
 # EMPATHETIC CHATBOT PRE-PROGRAMMED DIALOGUES
 CHAT_DIALOGUES = {
-    "emergency": "If you or someone near you is experiencing severe symptoms like sudden chest crushing pain, difficulty breathing, numbness on one side of the body, or loss of consciousness, please immediately dial **911** or visit the nearest emergency room. Your safety is of paramount importance.",
+    "emergency": "If you or someone near you is experiencing severe symptoms like sudden chest crushing pain, difficulty breathing, numbness on one side of the body, or loss of consciousness, please immediately dial **108** or visit the nearest emergency room. Your safety is of paramount importance.",
     "migraine": "Dealing with migraines can be incredibly draining. The intense throbbing and sensitivity to light/sound can make daily life difficult. Make sure to rest in a completely dark, quiet room. Placing a cool damp towel on your temples and staying hydrated can help ease the intensity.",
     "flu": "Fever, body aches, and persistent coughing are your body's signals to slow down. Please rest in bed, keep warm, and hydrate continuously. Warm water, clear broths, and herbal teas with honey will help soothe throat irritation and clear congestion.",
     "joint_stiffness": "For morning joint stiffness or osteoarthritis, a gentle warm bath or heating pad can help relax muscles and ease movement. Avoid sudden high-impact motions, and consider mild low-impact stretching to promote flexibility.",
@@ -255,7 +255,7 @@ def get_simulated_chat_response(query_text):
     Empathetic chatbot query router
     """
     q = query_text.lower()
-    if "emergency" in q or "die" in q or "heart attack" in q or "severe pain" in q or "911" in q:
+    if "emergency" in q or "die" in q or "heart attack" in q or "severe pain" in q or "911" in q or "108" in q:
         return CHAT_DIALOGUES["emergency"]
     elif "migraine" in q or "headache" in q or "head hurt" in q:
         return CHAT_DIALOGUES["migraine"]
