@@ -14,3 +14,6 @@
 # Vitals and Analytics Page
 <img width="1898" height="860" alt="image" src="https://github.com/user-attachments/assets/7096261d-743d-4bcf-89c0-d6b9ac4a66bc" />
 
+# Predictive Symptoms Analyzer
+<img width="1694" height="866" alt="image" src="https://github.com/user-attachments/assets/b486ee69-7332-41bf-8d4b-5ce26b2da959" />
+
