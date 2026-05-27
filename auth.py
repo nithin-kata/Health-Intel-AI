@@ -8,13 +8,13 @@ AUTH_CSS = """
 .auth-container {
     max-width: 450px;
     margin: 40px auto;
-    background: rgba(23, 28, 41, 0.6) !important;
-    backdrop-filter: blur(20px) !important;
-    -webkit-backdrop-filter: blur(20px) !important;
-    border: 1px solid rgba(255, 255, 255, 0.08) !important;
-    border-radius: 20px !important;
+    background: rgba(23, 28, 41, 0.45) !important;
+    backdrop-filter: blur(24px) !important;
+    -webkit-backdrop-filter: blur(24px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.05) !important;
+    border-radius: 24px !important;
     padding: 35px !important;
-    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5) !important;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.05) !important;
 }
 
 .auth-header {
