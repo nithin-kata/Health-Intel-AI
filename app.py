@@ -31,6 +31,8 @@ from simulation_engine import (
     CLINICAL_DATABASE
 )
 from llm_handler import analyze_symptoms_groq, chat_with_empathy_groq
+from landing import show_landing_page
+from auth import show_auth_page
 
 # Set page config with high-tech theme defaults
 st.set_page_config(
@@ -85,6 +87,23 @@ if "analysis_results" not in st.session_state:
 if "active_symptom_key" not in st.session_state:
     st.session_state.active_symptom_key = "general"
 
+# ----------------- SECURITY GATE (LANDING & AUTH) -----------------
+if "logged_in" not in st.session_state:
+    st.session_state.logged_in = False
+
+if "current_page" not in st.session_state:
+    st.session_state.current_page = "landing"
+
+if "user_name" not in st.session_state:
+    st.session_state.user_name = "Patient"
+
+if not st.session_state.logged_in:
+    if st.session_state.current_page == "landing":
+        show_landing_page()
+    else:
+        show_auth_page()
+    st.stop()
+
 # ----------------- SIDEBAR INTERFACE -----------------
 st.sidebar.markdown(
     '<div style="text-align: center; margin-bottom: 20px;">'
@@ -92,6 +111,14 @@ st.sidebar.markdown(
     '⚕️ Health Intel AI</h1>'
     '<span style="color: #94A3B8; font-size: 0.85rem;">Medical Symptom Analyzer</span>'
     '</div>',
+    unsafe_allow_html=True
+)
+
+st.sidebar.markdown(
+    f'<div style="background-color: rgba(6, 182, 212, 0.08); border: 1px solid rgba(6, 182, 212, 0.2); '
+    f'border-radius: 8px; padding: 10px; margin-bottom: 15px; text-align: center; font-size: 0.85rem; color: #FFF;">'
+    f'👤 Welcome, <strong>{st.session_state.user_name}</strong>!'
+    f'</div>',
     unsafe_allow_html=True
 )
 
@@ -148,10 +175,17 @@ st.sidebar.markdown(
     '<div style="background-color: rgba(239, 68, 68, 0.05); border: 1px solid rgba(239, 68, 68, 0.2); border-radius: 8px; padding: 12px; font-size: 0.75rem; color: #EF4444; line-height: 1.4;">'
     '⚠️ <strong>MEDICAL DISCLAIMER:</strong> This AI system provides informational and educational pre-screening guidance only. '
     'It does NOT substitute for professional medical advice, physical examination, diagnosis, or clinical treatment. '
-    '<strong>If you have a medical emergency, call 911 or visit the nearest ER immediately.</strong>'
+    '<strong>If you have a medical emergency, call 108 or visit the nearest ER immediately.</strong>'
     '</div>',
     unsafe_allow_html=True
 )
+
+# Logout Button
+st.sidebar.markdown('<hr style="border-top: 1px solid rgba(255, 255, 255, 0.08); margin: 15px 0;">', unsafe_allow_html=True)
+if st.sidebar.button("🔒 LOG OUT FROM SESSION", use_container_width=True):
+    st.session_state.logged_in = False
+    st.session_state.current_page = "landing"
+    st.rerun()
 
 # ----------------- HEADER & BANNER -----------------
 # Define banner image paths
