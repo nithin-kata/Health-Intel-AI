@@ -20,20 +20,21 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Glassmorphism containers */
 .glass-card {
-    background: rgba(23, 28, 41, 0.55) !important;
-    backdrop-filter: blur(16px) !important;
-    -webkit-backdrop-filter: blur(16px) !important;
-    border: 1px solid rgba(255, 255, 255, 0.06) !important;
-    border-radius: 18px !important;
+    background: rgba(23, 28, 41, 0.45) !important;
+    backdrop-filter: blur(24px) !important;
+    -webkit-backdrop-filter: blur(24px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.05) !important;
+    border-radius: 20px !important;
     padding: 24px !important;
-    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5) !important;
+    box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.05) !important;
     margin-bottom: 20px !important;
-    transition: transform 0.2s ease, border-color 0.2s ease !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
 }
 
 .glass-card:hover {
-    border-color: rgba(6, 182, 212, 0.3) !important;
-    transform: translateY(-2px) !important;
+    border-color: rgba(6, 182, 212, 0.25) !important;
+    transform: translateY(-3px) !important;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7), 0 0 20px rgba(6, 182, 212, 0.1) !important;
 }
 
 /* Linear gradient typography headers */
@@ -100,15 +101,19 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .chat-bubble.user {
-    background: linear-gradient(135deg, #4F46E5 0%, #6366F1 100%) !important;
+    background: linear-gradient(135deg, rgba(79, 70, 229, 0.65) 0%, rgba(99, 102, 241, 0.65) 100%) !important;
+    backdrop-filter: blur(8px) !important;
+    -webkit-backdrop-filter: blur(8px) !important;
     color: #FFFFFF !important;
     align-self: flex-end !important;
     border-bottom-right-radius: 4px !important;
-    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    border: 1px solid rgba(255, 255, 255, 0.12) !important;
 }
 
 .chat-bubble.assistant {
-    background: rgba(30, 41, 59, 0.7) !important;
+    background: rgba(30, 41, 59, 0.45) !important;
+    backdrop-filter: blur(8px) !important;
+    -webkit-backdrop-filter: blur(8px) !important;
     color: #E2E8F0 !important;
     align-self: flex-start !important;
     border-bottom-left-radius: 4px !important;
@@ -151,11 +156,21 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Sleek metrics widgets */
 .metric-box {
-    background: rgba(255, 255, 255, 0.03) !important;
-    border: 1px solid rgba(255, 255, 255, 0.05) !important;
-    border-radius: 12px !important;
+    background: rgba(255, 255, 255, 0.02) !important;
+    border: 1px solid rgba(255, 255, 255, 0.06) !important;
+    backdrop-filter: blur(8px) !important;
+    -webkit-backdrop-filter: blur(8px) !important;
+    border-radius: 14px !important;
     padding: 16px !important;
     text-align: center !important;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1) !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.metric-box:hover {
+    border-color: rgba(6, 182, 212, 0.25) !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2), 0 0 10px rgba(6, 182, 212, 0.05) !important;
 }
 
 .metric-value {
@@ -173,17 +188,122 @@ h1, h2, h3, h4, h5, h6 {
     margin-top: 4px !important;
 }
 
-/* Premium form customization */
-div[data-baseweb="input"] {
-    background-color: rgba(15, 23, 42, 0.6) !important;
-    border-radius: 8px !important;
-    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+/* Premium glass sidebar customization */
+section[data-testid="stSidebar"] {
+    background: rgba(13, 17, 23, 0.45) !important;
+    backdrop-filter: blur(24px) !important;
+    -webkit-backdrop-filter: blur(24px) !important;
+    border-right: 1px solid rgba(255, 255, 255, 0.05) !important;
 }
 
-div[data-baseweb="select"] > div {
+section[data-testid="stSidebar"] .stMarkdown,
+section[data-testid="stSidebar"] label,
+section[data-testid="stSidebar"] p,
+section[data-testid="stSidebar"] span,
+section[data-testid="stSidebar"] div[data-testid="stWidgetLabel"] p {
+    color: #FFFFFF !important;
+}
+
+/* Premium glass button overrides */
+div.stButton > button {
+    background: rgba(255, 255, 255, 0.02) !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    color: #E2E8F0 !important;
+    backdrop-filter: blur(10px) !important;
+    border-radius: 12px !important;
+    font-family: 'Outfit', sans-serif !important;
+    font-weight: 600 !important;
+    padding: 8px 18px !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2) !important;
+}
+div.stButton > button:hover {
+    background: rgba(6, 182, 212, 0.08) !important;
+    border-color: rgba(6, 182, 212, 0.3) !important;
+    color: #06B6D4 !important;
+    box-shadow: 0 0 20px rgba(6, 182, 212, 0.15) !important;
+    transform: translateY(-2px) !important;
+}
+div.stButton > button:active {
+    transform: translateY(0) !important;
+}
+
+/* Primary buttons specific glow */
+div.stButton > button[kind="primary"] {
+    background: linear-gradient(135deg, rgba(6, 182, 212, 0.15) 0%, rgba(59, 130, 246, 0.15) 100%) !important;
+    border: 1px solid rgba(6, 182, 212, 0.4) !important;
+    color: #FFF !important;
+}
+div.stButton > button[kind="primary"]:hover {
+    background: linear-gradient(135deg, rgba(6, 182, 212, 0.25) 0%, rgba(59, 130, 246, 0.25) 100%) !important;
+    border-color: rgba(6, 182, 212, 0.6) !important;
+    box-shadow: 0 0 25px rgba(6, 182, 212, 0.25) !important;
+}
+
+/* Premium glass Tab controls */
+div[data-testid="stTabBar"] {
+    background: rgba(23, 28, 41, 0.4) !important;
+    backdrop-filter: blur(12px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.05) !important;
+    border-radius: 16px !important;
+    padding: 6px !important;
+    gap: 8px !important;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2) !important;
+}
+div[data-testid="stTabBar"] button {
+    border-radius: 10px !important;
+    border: 1px solid transparent !important;
+    transition: all 0.3s ease !important;
+    color: #94A3B8 !important;
+    background: transparent !important;
+    font-family: 'Outfit', sans-serif !important;
+    font-weight: 500 !important;
+}
+div[data-testid="stTabBar"] button[aria-selected="true"] {
+    background: rgba(255, 255, 255, 0.05) !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    color: #FFF !important;
+    font-weight: 600 !important;
+    box-shadow: inset 0 0 10px rgba(6, 182, 212, 0.05) !important;
+}
+div[data-testid="stTabBar"] button:hover {
+    color: #FFF !important;
+    background: rgba(255, 255, 255, 0.02) !important;
+}
+div[data-testid="stTabBar"]::after {
+    display: none !important;
+}
+
+/* Premium form and input customization */
+div[data-baseweb="input"], 
+div[data-baseweb="select"] > div,
+div[data-baseweb="textarea"] > div {
+    background-color: rgba(15, 23, 42, 0.45) !important;
+    backdrop-filter: blur(8px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.06) !important;
+    border-radius: 12px !important;
+    color: #F8FAFC !important;
+    transition: all 0.3s ease !important;
+}
+div[data-baseweb="input"]:focus-within, 
+div[data-baseweb="select"] > div:focus-within,
+div[data-baseweb="textarea"] > div:focus-within {
+    border-color: rgba(6, 182, 212, 0.4) !important;
+    box-shadow: 0 0 15px rgba(6, 182, 212, 0.1) !important;
     background-color: rgba(15, 23, 42, 0.6) !important;
-    border-radius: 8px !important;
-    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Premium glass sliders */
+div[data-testid="stSlider"] [role="slider"] {
+    background-color: #06B6D4 !important;
+    border: 2px solid #FFF !important;
+    box-shadow: 0 0 10px rgba(6, 182, 212, 0.5) !important;
+}
+div[data-testid="stSlider"] div[role="presentation"] {
+    background-color: rgba(255, 255, 255, 0.08) !important;
+}
+div[data-testid="stSlider"] div[data-testid="stSliderTickBar"] {
+    color: #94A3B8 !important;
 }
 
 /* Sleek scrollbar override */
@@ -206,5 +326,73 @@ div[data-baseweb="select"] > div {
 #MainMenu {visibility: hidden;}
 footer {visibility: hidden;}
 header {background-color: transparent !important;}
+
+/* Chat input bottom container glass styling and alignment */
+div[data-testid="stBottom"],
+div[data-testid="stBottomBlockContainer"],
+div[data-testid="stBottom"] > div,
+div[class*="stBottomBlockContainer"],
+div[class*="stBottom"] {
+    background-color: #0B0E14 !important;
+    background: #0B0E14 !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+div[data-testid="stBottomBlockContainer"] {
+    max-width: 800px !important;
+    margin: 0 auto !important;
+}
+
+/* ChatGPT-themed premium glassy input box (removes multiple nested boxes) */
+div[data-testid="stChatInput"] {
+    background-color: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    margin-bottom: 20px !important;
+}
+
+/* Style the actual inner text area wrapper as a single clean glassy bar matching the navy blue theme cards above */
+div[data-testid="stChatInput"] > div {
+    background-color: #171C29 !important; /* Navy Blue matching color */
+    backdrop-filter: blur(24px) !important;
+    -webkit-backdrop-filter: blur(24px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    border-radius: 26px !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.05) !important;
+    padding: 6px 14px !important;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease !important;
+}
+
+div[data-testid="stChatInput"] > div:focus-within {
+    border-color: rgba(6, 182, 212, 0.4) !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35), 0 0 15px rgba(6, 182, 212, 0.15) !important;
+    background-color: #1D2333 !important; /* Slightly lighter navy blue on focus */
+}
+
+/* Inner input field styling */
+div[data-testid="stChatInput"] textarea {
+    background-color: transparent !important;
+    color: #FFFFFF !important;
+    font-family: 'Inter', sans-serif !important;
+    border: none !important;
+}
+
+/* Send arrow button styling */
+div[data-testid="stChatInput"] button {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    color: #E2E8F0 !important;
+    border-radius: 50% !important;
+    transition: all 0.3s ease !important;
+}
+
+div[data-testid="stChatInput"] button:hover {
+    background-color: rgba(6, 182, 212, 0.15) !important;
+    border-color: rgba(6, 182, 212, 0.3) !important;
+    color: #06B6D4 !important;
+    box-shadow: 0 0 15px rgba(6, 182, 212, 0.25) !important;
+}
 </style>
 """
