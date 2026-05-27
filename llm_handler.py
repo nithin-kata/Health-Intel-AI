@@ -114,7 +114,7 @@ GUIDELINES:
 3. Be transparent about uncertainties.
 4. Keep your explanations clear, simple, and free of unnecessary medical jargon.
 5. Emphasize that you are an informational pre-screening assistant and cannot replace in-person diagnosis.
-6. If the patient describes life-threatening signs (e.g. crushing chest pain, paralysis, sudden extreme breathlessness), instantly instruct them to call 911/emergency services immediately.
+6. If the patient describes life-threatening signs (e.g. crushing chest pain, paralysis, sudden extreme breathlessness), instantly instruct them to call 108/emergency services immediately.
 """
 
     messages = [{"role": "system", "content": system_prompt}]
