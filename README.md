@@ -17,3 +17,5 @@
 # Predictive Symptoms Analyzer
 <img width="1694" height="866" alt="image" src="https://github.com/user-attachments/assets/b486ee69-7332-41bf-8d4b-5ce26b2da959" />
 
+# Personalized Treatment Plan
+<img width="1581" height="855" alt="image" src="https://github.com/user-attachments/assets/016e9b6c-b89f-4db9-be19-fcadc536d9ec" />
