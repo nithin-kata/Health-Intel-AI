@@ -1,6 +1,3 @@
-# simulation_engine.py - Clinical Knowledge Database & Patient Simulator
-
-import pandas as pd
 import random
 import datetime
 
@@ -9,9 +6,9 @@ CLINICAL_DATABASE = {
     "chest_pain": {
         "symptoms_matched": ["chest pain", "tightness", "pressure", "angina", "shortness of breath", "chest hurts", "heart hurting"],
         "conditions": [
-            {"name": "Angina Pectoris", "likelihood": 45, "risk": "HIGH", "nlp_reason": "Based on reported pressure and chest tightness, transient reduction of myocardial blood flow (Angina) is a major diagnostic consideration."},
-            {"name": "Gastroesophageal Reflux Disease (GERD)", "likelihood": 35, "risk": "LOW", "nlp_reason": "Acid reflux frequently mimics angina-like pain, presenting as retrosternal burning or pressure."},
-            {"name": "Costochondritis", "likelihood": 20, "risk": "LOW", "nlp_reason": "Inflammation of the cartilage linking ribs to the breastbone causes localized chest pain, aggravated by pressure or breathing."}
+            {"name": "Angina Pectoris", "likelihood": 65, "risk": "HIGH", "nlp_reason": "Based on reported pressure and chest tightness, transient reduction of myocardial blood flow (Angina) is a major diagnostic consideration."},
+            {"name": "Gastroesophageal Reflux Disease (GERD)", "likelihood": 55, "risk": "LOW", "nlp_reason": "Acid reflux frequently mimics angina-like pain, presenting as retrosternal burning or pressure."},
+            {"name": "Costochondritis", "likelihood": 40, "risk": "LOW", "nlp_reason": "Inflammation of the cartilage linking ribs to the breastbone causes localized chest pain, aggravated by pressure or breathing."}
         ],
         "treatment_plan": {
             "immediate_actions": [
@@ -39,9 +36,9 @@ CLINICAL_DATABASE = {
     "headache": {
         "symptoms_matched": ["headache", "throbbing", "head hurts", "migraine", "temple pain", "forehead pressure", "head pain"],
         "conditions": [
-            {"name": "Migraine", "likelihood": 50, "risk": "MEDIUM", "nlp_reason": "Unilateral, throbbing headache presentation is strongly associated with migraine, especially when exacerbated by light or sound."},
-            {"name": "Tension Headache", "likelihood": 35, "risk": "LOW", "nlp_reason": "Bilateral, non-pulsating tightness surrounding the forehead suggests tension-induced myofascial strain."},
-            {"name": "Dehydration Headache", "likelihood": 15, "risk": "LOW", "nlp_reason": "Decreased fluid levels lead to temporary narrowing of blood vessels in the brain, presenting as a generalized headache."}
+            {"name": "Migraine", "likelihood": 70, "risk": "MEDIUM", "nlp_reason": "Unilateral, throbbing headache presentation is strongly associated with migraine, especially when exacerbated by light or sound."},
+            {"name": "Tension Headache", "likelihood": 55, "risk": "LOW", "nlp_reason": "Bilateral, non-pulsating tightness surrounding the forehead suggests tension-induced myofascial strain."},
+            {"name": "Dehydration Headache", "likelihood": 35, "risk": "LOW", "nlp_reason": "Decreased fluid levels lead to temporary narrowing of blood vessels in the brain, presenting as a generalized headache."}
         ],
         "treatment_plan": {
             "immediate_actions": [
@@ -69,9 +66,9 @@ CLINICAL_DATABASE = {
     "flu_cough": {
         "symptoms_matched": ["cough", "fever", "flu", "sore throat", "chills", "congestion", "cold", "body ache", "shivering"],
         "conditions": [
-            {"name": "Influenza (Flu)", "likelihood": 55, "risk": "MEDIUM", "nlp_reason": "Abrupt onset of high fever, body aches, shivering chills, and persistent cough is characteristic of influenza virus infection."},
-            {"name": "Acute Bronchitis", "likelihood": 30, "risk": "LOW", "nlp_reason": "Persistent dry or productive cough following an upper respiratory infection indicates bronchial tube irritation."},
-            {"name": "Common Cold (Rhinovirus)", "likelihood": 15, "risk": "LOW", "nlp_reason": "Mild sore throat combined with nasal congestion and low-grade fever points toward a viral rhinovirus infection."}
+            {"name": "Influenza (Flu)", "likelihood": 75, "risk": "MEDIUM", "nlp_reason": "Abrupt onset of high fever, body aches, shivering chills, and persistent cough is characteristic of influenza virus infection."},
+            {"name": "Acute Bronchitis", "likelihood": 50, "risk": "LOW", "nlp_reason": "Persistent dry or productive cough following an upper respiratory infection indicates bronchial tube irritation."},
+            {"name": "Common Cold (Rhinovirus)", "likelihood": 35, "risk": "LOW", "nlp_reason": "Mild sore throat combined with nasal congestion and low-grade fever points toward a viral rhinovirus infection."}
         ],
         "treatment_plan": {
             "immediate_actions": [
@@ -99,9 +96,9 @@ CLINICAL_DATABASE = {
     "knee_pain": {
         "symptoms_matched": ["knee pain", "joint pain", "knee hurts", "stiff knee", "swollen knee", "knee click", "knee pop"],
         "conditions": [
-            {"name": "Knee Osteoarthritis", "likelihood": 40, "risk": "LOW", "nlp_reason": "Stiffness, localized aching, and clicking sound during movement points to mechanical wear and tear of joint cartilage."},
-            {"name": "Ligament/Meniscus Strain", "likelihood": 35, "risk": "MEDIUM", "nlp_reason": "Pain following mechanical twisting or minor impact points to micro-tears in ligament fibers or shock-absorbing meniscus."},
-            {"name": "Patellofemoral Pain Syndrome", "likelihood": 25, "risk": "LOW", "nlp_reason": "Generalized ache behind or around the kneecap, worsened by stair climbing or sitting for long periods."}
+            {"name": "Knee Osteoarthritis", "likelihood": 60, "risk": "LOW", "nlp_reason": "Stiffness, localized aching, and clicking sound during movement points to mechanical wear and tear of joint cartilage."},
+            {"name": "Ligament/Meniscus Strain", "likelihood": 55, "risk": "MEDIUM", "nlp_reason": "Pain following mechanical twisting or minor impact points to micro-tears in ligament fibers or shock-absorbing meniscus."},
+            {"name": "Patellofemoral Pain Syndrome", "likelihood": 45, "risk": "LOW", "nlp_reason": "Generalized ache behind or around the kneecap, worsened by stair climbing or sitting for long periods."}
         ],
         "treatment_plan": {
             "immediate_actions": [
@@ -129,9 +126,9 @@ CLINICAL_DATABASE = {
     "skin_rash": {
         "symptoms_matched": ["rash", "itchy skin", "red spots", "hives", "eczema", "skin irritation", "dry skin patch"],
         "conditions": [
-            {"name": "Contact Dermatitis", "likelihood": 45, "risk": "LOW", "nlp_reason": "Localized red, itchy rash indicates an allergic or irritant reaction to a chemical, soap, or material exposure."},
-            {"name": "Atopic Dermatitis (Eczema)", "likelihood": 35, "risk": "LOW", "nlp_reason": "Chronic, itchy, dry, and scaly red patches point toward atopic eczema, especially on flexor surfaces (creases)."},
-            {"name": "Urticaria (Hives)", "likelihood": 20, "risk": "MEDIUM", "nlp_reason": "Sudden onset of raised, highly itchy, red or skin-colored welts (wheals) suggests an acute histamine release."}
+            {"name": "Contact Dermatitis", "likelihood": 65, "risk": "LOW", "nlp_reason": "Localized red, itchy rash indicates an allergic or irritant reaction to a chemical, soap, or material exposure."},
+            {"name": "Atopic Dermatitis (Eczema)", "likelihood": 55, "risk": "LOW", "nlp_reason": "Chronic, itchy, dry, and scaly red patches point toward atopic eczema, especially on flexor surfaces (creases)."},
+            {"name": "Urticaria (Hives)", "likelihood": 40, "risk": "MEDIUM", "nlp_reason": "Sudden onset of raised, highly itchy, red or skin-colored welts (wheals) suggests an acute histamine release."}
         ],
         "treatment_plan": {
             "immediate_actions": [
@@ -239,22 +236,40 @@ def generate_health_history(days=7):
     sleep_hours = [random.randint(5, 6) for _ in range(days-3)] + [7, 8, 8] # Improving sleep
     active_minutes = [random.randint(10, 20) for _ in range(days-2)] + [30, 35] # Regaining energy
     
-    df = pd.DataFrame({
-        "Date": [d.strftime("%Y-%m-%d") for d in dates],
-        "Symptom Severity (1-10)": symptom_severity,
-        "Avg Heart Rate (BPM)": heart_rate,
-        "Water Intake (Glasses)": water_intake,
-        "Sleep Duration (Hours)": sleep_hours,
-        "Active Minutes": active_minutes
-    })
-    
-    return df
+    history = []
+    for i in range(days):
+        history.append({
+            "Date": dates[i].strftime("%Y-%m-%d"),
+            "Symptom Severity (1-10)": symptom_severity[i],
+            "Avg Heart Rate (BPM)": heart_rate[i],
+            "Water Intake (Glasses)": water_intake[i],
+            "Sleep Duration (Hours)": sleep_hours[i],
+            "Active Minutes": active_minutes[i]
+        })
+        
+    return history
 
 def get_simulated_chat_response(query_text):
     """
-    Empathetic chatbot query router
+    Empathetic chatbot query router with strict clinical guardrails.
     """
     q = query_text.lower()
+    
+    # SECURITY GUARDRAIL: Detect non-medical, generic topics
+    generic_triggers = [
+        "travel", "trip", "flight", "hotel", "mumbai", "hyd", "delhi", "bangalore",
+        "weather", "joke", "song", "movie", "game", "code", "python", "programming",
+        "javascript", "html", "css", "sql", "write a", "recipe for", "restaurant",
+        "capital of", "who is", "what is the height of", "distance from", "route"
+    ]
+    
+    # Check if any generic trigger is present in the query
+    is_generic = any(trigger in q for trigger in generic_triggers)
+    if is_generic:
+        # Guarantee we don't accidentally intercept healthy diet/nutrition queries
+        if not any(health_word in q for health_word in ["health", "diet", "nutrition", "medical", "disease", "symptom", "pain"]):
+            return "I am designed strictly for health intelligence and clinical pre-screening guidance. I am unable to answer non-health related queries. Please let me know how I can help with your symptoms or medical questions."
+            
     if "emergency" in q or "die" in q or "heart attack" in q or "severe pain" in q or "911" in q or "108" in q:
         return CHAT_DIALOGUES["emergency"]
     elif "migraine" in q or "headache" in q or "head hurt" in q:

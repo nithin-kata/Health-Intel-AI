@@ -14,7 +14,7 @@ AUTH_CSS = """
     border: 1px solid rgba(255, 255, 255, 0.05) !important;
     border-radius: 24px !important;
     padding: 35px !important;
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.05) !important;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(2 n 55, 255, 255, 0.05) !important;
 }
 
 .auth-header {

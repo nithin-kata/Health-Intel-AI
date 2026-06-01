@@ -1,10 +1,8 @@
-# app.py - Main Streamlit Application UI
+# app.py - Flask REST API & Web Server Controller (Emoji-Free & Comparator Integrated)
 
-import streamlit as st
-import pandas as pd
-import plotly.express as px
-import time
 import os
+import time
+from flask import Flask, render_template, request, jsonify, session
 
 # Function to manually load .env file if it exists
 def load_dotenv(filepath=".env"):
@@ -22,655 +20,296 @@ def load_dotenv(filepath=".env"):
 # Load environment variables from .env
 load_dotenv()
 
+# Initialize Flask app
+app = Flask(__name__)
+# Generate a cryptographically secure random session secret key
+app.secret_key = os.environ.get("FLASK_SECRET_KEY", os.urandom(24).hex())
+
 # Import components
-from styles import CUSTOM_CSS
+from db_handler import register_user, authenticate_user
+from llm_handler import analyze_symptoms_groq, chat_with_empathy_groq
 from simulation_engine import (
     get_clinical_analysis,
     generate_health_history,
-    get_simulated_chat_response,
-    CLINICAL_DATABASE
-)
-from llm_handler import analyze_symptoms_groq, chat_with_empathy_groq
-from landing import show_landing_page
-from auth import show_auth_page
-
-# Set page config with high-tech theme defaults
-st.set_page_config(
-    page_title="Healthcare Intelligence AI",
-    page_icon="⚕️",
-    layout="wide",
-    initial_sidebar_state="expanded"
+    get_simulated_chat_response
 )
 
-# Inject premium custom CSS stylesheet
-st.markdown(CUSTOM_CSS, unsafe_allow_html=True)
+# ==================== WEB ROUTES ====================
 
-# ----------------- CONFIGURATION -----------------
-# API Key is loaded dynamically from the environment (.env file or system environment)
-GROQ_API_KEY = os.environ.get("GROQ_API_KEY", "")
+@app.route("/")
+def index():
+    """
+    Serves the Single Page Application HTML5 master structure.
+    """
+    return render_template("index.html")
 
-# ----------------- SESSION STATE INITIALIZATION -----------------
-if "demographics" not in st.session_state:
-    st.session_state.demographics = {
-        "age": 32,
-        "gender": "Male",
-        "pre_existing": "None",
-        "medications": "None"
-    }
+# ==================== AUTHENTICATION API ENDPOINTS ====================
 
-# Determine default mode based on API key availability
-default_key = GROQ_API_KEY.strip() if GROQ_API_KEY.strip() != "" else ""
+@app.route("/api/signup", methods=["POST"])
+def signup():
+    """
+    Registers a new patient profile securely in the local database.
+    """
+    data = request.get_json() or {}
+    name = data.get("name")
+    email = data.get("email")
+    password = data.get("password")
+    
+    if not name or not email or not password:
+        return jsonify({"success": False, "message": "All fields are required."}), 400
+        
+    success, msg = register_user(email, name, password)
+    if success:
+        # Establish session variables
+        session["logged_in"] = True
+        session["user_name"] = name
+        session["email"] = email
+        return jsonify({"success": True, "message": msg, "user_name": name})
+    else:
+        return jsonify({"success": False, "message": msg}), 400
 
-if "api_mode" not in st.session_state:
-    st.session_state.api_mode = "Groq Live API Mode" if default_key else "Simulation Mode"
+@app.route("/api/login", methods=["POST"])
+def login():
+    """
+    Authenticates patient credentials against our secure SQLite salted SHA-256 store.
+    """
+    data = request.get_json() or {}
+    email = data.get("email")
+    password = data.get("password")
+    
+    if not email or not password:
+        return jsonify({"success": False, "message": "Email and password are required."}), 400
+        
+    success, msg, name = authenticate_user(email, password)
+    if success:
+        # Establish session variables
+        session["logged_in"] = True
+        session["user_name"] = name
+        session["email"] = email
+        return jsonify({"success": True, "message": msg, "user_name": name})
+    else:
+        return jsonify({"success": False, "message": msg}), 401
 
-if "groq_api_key" not in st.session_state:
-    st.session_state.groq_api_key = default_key
+@app.route("/api/logout", methods=["POST"])
+def logout():
+    """
+    Clears active user session contexts.
+    """
+    session.clear()
+    return jsonify({"success": True, "message": "Logged out successfully."})
 
-if "groq_model" not in st.session_state:
-    st.session_state.groq_model = "llama-3.3-70b-versatile"
+# ==================== DYNAMIC VITALS LOGGER ENDPOINTS ====================
 
-if "chat_history" not in st.session_state:
-    st.session_state.chat_history = [
-        {
-            "role": "assistant",
-            "content": "Hello! I am your 24/7 AI Medical Assistant. How are you feeling today? You can describe any symptoms you are experiencing, and I will offer clinical facts and empathetic guidance."
+@app.route("/api/vitals", methods=["GET", "POST"])
+def manage_vitals():
+    """
+    Manages active daily patient vitals and timeline chart histories.
+    """
+    if not session.get("logged_in"):
+        return jsonify({"success": False, "message": "Unauthorized access."}), 401
+        
+    # Initialize default vitals in session if not present
+    if "vitals" not in session:
+        session["vitals"] = {
+            "heart_rate": 78,
+            "active_minutes": 45,
+            "water_intake": 6,
+            "health_score": 92
         }
-    ]
-
-if "symptom_input" not in st.session_state:
-    st.session_state.symptom_input = ""
-
-if "analysis_results" not in st.session_state:
-    st.session_state.analysis_results = None
-
-if "active_symptom_key" not in st.session_state:
-    st.session_state.active_symptom_key = "general"
-
-# ----------------- SECURITY GATE (LANDING & AUTH) -----------------
-if "logged_in" not in st.session_state:
-    st.session_state.logged_in = False
-
-if "current_page" not in st.session_state:
-    st.session_state.current_page = "landing"
-
-if "user_name" not in st.session_state:
-    st.session_state.user_name = "Patient"
-
-if not st.session_state.logged_in:
-    if st.session_state.current_page == "landing":
-        show_landing_page()
-    else:
-        show_auth_page()
-    st.stop()
-
-# ----------------- SIDEBAR INTERFACE -----------------
-st.sidebar.markdown(
-    '<div style="text-align: center; margin-bottom: 20px;">'
-    '<h1 style="color: #06B6D4; font-size: 1.8rem; font-family: \'Outfit\'; font-weight: 800;">'
-    '⚕️ Health Intel AI</h1>'
-    '<span style="color: #94A3B8; font-size: 0.85rem;">Medical Symptom Analyzer</span>'
-    '</div>',
-    unsafe_allow_html=True
-)
-
-st.sidebar.markdown(
-    f'<div style="background-color: rgba(6, 182, 212, 0.08); border: 1px solid rgba(6, 182, 212, 0.2); '
-    f'border-radius: 8px; padding: 10px; margin-bottom: 15px; text-align: center; font-size: 0.85rem; color: #FFF;">'
-    f'👤 Welcome, <strong>{st.session_state.user_name}</strong>!'
-    f'</div>',
-    unsafe_allow_html=True
-)
-
-st.sidebar.markdown('<hr style="border-top: 1px solid rgba(255, 255, 255, 0.08); margin: 10px 0;">', unsafe_allow_html=True)
-
-# Navigation
-st.sidebar.markdown('<p class="gradient-subheader" style="font-size: 0.9rem; letter-spacing: 0.05em; text-transform: uppercase;">Navigation</p>', unsafe_allow_html=True)
-navigation = st.sidebar.radio(
-    "Go To Page",
-    [
-        "📊 Vitals & Analytics Dashboard",
-        "🩺 Predictive Symptom Analyzer",
-        "📋 Personalized Treatment Plans",
-        "💬 24/7 Conversational Chat"
-    ],
-    label_visibility="collapsed"
-)
-
-st.sidebar.markdown('<hr style="border-top: 1px solid rgba(255, 255, 255, 0.08); margin: 15px 0;">', unsafe_allow_html=True)
-
-# Patient Demographics Profile
-st.sidebar.markdown('<p class="gradient-subheader" style="font-size: 0.9rem; letter-spacing: 0.05em; text-transform: uppercase;">Patient Profile</p>', unsafe_allow_html=True)
-with st.sidebar.expander("👤 Edit Demographics", expanded=True):
-    age = st.slider("Age", 1, 100, st.session_state.demographics["age"])
-    gender = st.selectbox("Gender", ["Male", "Female", "Other"], index=["Male", "Female", "Other"].index(st.session_state.demographics["gender"]))
-    pre_existing = st.text_input("Pre-existing Conditions", st.session_state.demographics["pre_existing"], placeholder="e.g. Hypertension, None")
-    medications = st.text_input("Active Medications", st.session_state.demographics["medications"], placeholder="e.g. Aspirin, None")
-    
-    st.session_state.demographics = {
-        "age": age,
-        "gender": gender,
-        "pre_existing": pre_existing if pre_existing.strip() != "" else "None",
-        "medications": medications if medications.strip() != "" else "None"
-    }
-
-# API Credentials Config
-st.sidebar.markdown('<hr style="border-top: 1px solid rgba(255, 255, 255, 0.08); margin: 15px 0;">', unsafe_allow_html=True)
-st.sidebar.markdown('<p class="gradient-subheader" style="font-size: 0.9rem; letter-spacing: 0.05em; text-transform: uppercase;">AI Engine Settings</p>', unsafe_allow_html=True)
-with st.sidebar.expander("⚙️ Groq LPU Config", expanded=False):
-    api_mode = st.radio("Operating Mode", ["Simulation Mode", "Groq Live API Mode"], index=1 if st.session_state.api_mode == "Groq Live API Mode" else 0)
-    groq_key = st.text_input("Groq API Key", st.session_state.groq_api_key, type="password", placeholder="gsk-...")
-    groq_model = st.selectbox("Model", ["llama-3.3-70b-versatile", "mixtral-8x7b-32768", "llama-3.1-8b-instant"], index=0)
-    
-    st.session_state.api_mode = api_mode
-    st.session_state.groq_api_key = groq_key
-    st.session_state.groq_model = groq_model
-    
-    if api_mode == "Groq Live API Mode" and not groq_key.startswith("gsk_"):
-        st.warning("⚠️ Enter a valid Groq API Key (starts with gsk_)")
-
-# Safety Disclaimer
-st.sidebar.markdown('<hr style="border-top: 1px solid rgba(255, 255, 255, 0.08); margin: 20px 0;">', unsafe_allow_html=True)
-st.sidebar.markdown(
-    '<div style="background-color: rgba(239, 68, 68, 0.05); border: 1px solid rgba(239, 68, 68, 0.2); border-radius: 8px; padding: 12px; font-size: 0.75rem; color: #EF4444; line-height: 1.4;">'
-    '⚠️ <strong>MEDICAL DISCLAIMER:</strong> This AI system provides informational and educational pre-screening guidance only. '
-    'It does NOT substitute for professional medical advice, physical examination, diagnosis, or clinical treatment. '
-    '<strong>If you have a medical emergency, call 108 or visit the nearest ER immediately.</strong>'
-    '</div>',
-    unsafe_allow_html=True
-)
-
-# Logout Button
-st.sidebar.markdown('<hr style="border-top: 1px solid rgba(255, 255, 255, 0.08); margin: 15px 0;">', unsafe_allow_html=True)
-if st.sidebar.button("🔒 LOG OUT FROM SESSION", use_container_width=True):
-    st.session_state.logged_in = False
-    st.session_state.current_page = "landing"
-    st.rerun()
-
-# ----------------- HEADER & BANNER -----------------
-# Define banner image paths
-banner_path = r"C:\Users\NITHIN KATA\.gemini\antigravity\brain\219379dd-943a-4779-a1a3-0616aee34382\medical_ai_banner_1779253229884.png"
-
-try:
-    if os.path.exists(banner_path):
-        st.image(banner_path, use_container_width=True)
-    else:
-        st.markdown(
-            '<div style="background: linear-gradient(135deg, rgba(6, 182, 212, 0.15) 0%, rgba(59, 130, 246, 0.15) 50%, rgba(139, 92, 246, 0.15) 100%); '
-            'border-bottom: 2px solid rgba(6, 182, 212, 0.3); border-radius: 16px; padding: 40px; text-align: center; margin-bottom: 30px;">'
-            '<h1 class="gradient-header">Healthcare Intelligence AI</h1>'
-            '<p style="color: #94A3B8; font-size: 1.2rem; max-width: 800px; margin: 0 auto; font-family: \'Outfit\';">'
-            'Empowering patients with reliable, clinical-grade pre-screening analytics, personalized care insights, and empathetic conversational guidance.</p>'
-            '</div>',
-            unsafe_allow_html=True
-        )
-except Exception:
-    st.markdown(
-        '<div style="background: linear-gradient(135deg, rgba(6, 182, 212, 0.15) 0%, rgba(59, 130, 246, 0.15) 50%, rgba(139, 92, 246, 0.15) 100%); '
-        'border-bottom: 2px solid rgba(6, 182, 212, 0.3); border-radius: 16px; padding: 40px; text-align: center; margin-bottom: 30px;">'
-        '<h1 class="gradient-header">Healthcare Intelligence AI</h1>'
-        '<p style="color: #94A3B8; font-size: 1.2rem; max-width: 800px; margin: 0 auto; font-family: \'Outfit\';">'
-        'Empowering patients with reliable, clinical-grade pre-screening analytics, personalized care insights, and empathetic conversational guidance.</p>'
-        '</div>',
-        unsafe_allow_html=True
-    )
-
-# ----------------- PAGE 1: HEALTH DASHBOARD -----------------
-if navigation == "📊 Vitals & Analytics Dashboard":
-    st.markdown('<h2 style="font-family: \'Outfit\'; font-size: 2.2rem; color: #FFF; margin-bottom: 20px;">📊 Patient Vitals & Health Analytics</h2>', unsafe_allow_html=True)
-    
-    # 4 Quick Metrics row
-    col1, col2, col3, col4 = st.columns(4)
-    with col1:
-        st.markdown(
-            '<div class="metric-box">'
-            '<div class="metric-value" style="color: #06B6D4;">78 <span style="font-size: 0.9rem; color: #94A3B8;">BPM</span></div>'
-            '<div class="metric-label">Avg Heart Rate</div>'
-            '<div style="font-size: 0.75rem; color: #34D399; margin-top: 4px;">🟢 Normal Range</div>'
-            '</div>',
-            unsafe_allow_html=True
-        )
-    with col2:
-        st.markdown(
-            '<div class="metric-box">'
-            '<div class="metric-value" style="color: #3B82F6;">45 <span style="font-size: 0.9rem; color: #94A3B8;">MIN</span></div>'
-            '<div class="metric-label">Active Minutes</div>'
-            '<div style="font-size: 0.75rem; color: #34D399; margin-top: 4px;">📈 +15% vs Last Week</div>'
-            '</div>',
-            unsafe_allow_html=True
-        )
-    with col3:
-        st.markdown(
-            '<div class="metric-box">'
-            '<div class="metric-value" style="color: #6366F1;">6 / 8 <span style="font-size: 0.9rem; color: #94A3B8;">CUPS</span></div>'
-            '<div class="metric-label">Water Intake</div>'
-            '<div style="font-size: 0.75rem; color: #FBBF24; margin-top: 4px;">🟡 75% of Daily Target</div>'
-            '</div>',
-            unsafe_allow_html=True
-        )
-    with col4:
-        st.markdown(
-            '<div class="metric-box">'
-            '<div class="metric-value" style="color: #A855F7;">92%</div>'
-            '<div class="metric-label">Health Score</div>'
-            '<div style="font-size: 0.75rem; color: #34D399; margin-top: 4px;">🟢 Excellent Health Index</div>'
-            '</div>',
-            unsafe_allow_html=True
-        )
-
-    st.markdown('<div style="height: 20px;"></div>', unsafe_allow_html=True)
-    
-    # 2 Column Chart Area
-    c1, c2 = st.columns(2)
-    
-    # Generate static 7-day health history
-    history_df = generate_health_history()
-    
-    with c1:
-        st.markdown('<div class="glass-card">', unsafe_allow_html=True)
-        st.markdown('<h3 style="color: #06B6D4; font-family: \'Outfit\'; margin-top:0;">%s Daily Symptom Severity Trend</h3>' % "🩺", unsafe_allow_html=True)
         
-        # Plotly chart for symptom severity (neon line)
-        fig1 = px.line(
-            history_df,
-            x="Date",
-            y="Symptom Severity (1-10)",
-            markers=True,
-            color_discrete_sequence=["#06B6D4"]
-        )
-        fig1.update_layout(
-            paper_bgcolor='rgba(0,0,0,0)',
-            plot_bgcolor='rgba(0,0,0,0)',
-            font_color='#94A3B8',
-            xaxis=dict(showgrid=True, gridcolor='rgba(255,255,255,0.05)', title=""),
-            yaxis=dict(showgrid=True, gridcolor='rgba(255,255,255,0.05)', range=[0, 10], title="Severity Scale (1-10)"),
-            margin=dict(l=20, r=20, t=10, b=20)
-        )
-        st.plotly_chart(fig1, use_container_width=True)
-        st.markdown('</div>', unsafe_allow_html=True)
+    if request.method == "POST":
+        data = request.get_json() or {}
+        # Safely parse slider updates
+        for key in ["heart_rate", "active_minutes", "water_intake", "health_score"]:
+            if key in data:
+                session["vitals"][key] = int(data[key])
+        session.modified = True
+        return jsonify({"success": True, "vitals_current": session["vitals"]})
         
-    with c2:
-        st.markdown('<div class="glass-card">', unsafe_allow_html=True)
-        st.markdown('<h3 style="color: #8B5CF6; font-family: \'Outfit\'; margin-top:0;">💤 Vitals: Sleep & Activity Tracking</h3>', unsafe_allow_html=True)
+    # GET: Retrieve vitals context and generated 7-day health tracking timeline
+    history = generate_health_history()
+    # Inject current interactive slider vitals into the latest index in the history timeline
+    if history and len(history) > 0:
+        history[-1]["Avg Heart Rate (BPM)"] = session["vitals"]["heart_rate"]
+        history[-1]["Water Intake (Glasses)"] = session["vitals"]["water_intake"]
+        history[-1]["Active Minutes"] = session["vitals"]["active_minutes"]
         
-        # Plotly chart for sleep vs activity
-        fig2 = px.bar(
-            history_df,
-            x="Date",
-            y=["Sleep Duration (Hours)", "Water Intake (Glasses)"],
-            barmode="group",
-            color_discrete_map={
-                "Sleep Duration (Hours)": "#8B5CF6",
-                "Water Intake (Glasses)": "#3B82F6"
+    return jsonify({
+        "success": True, 
+        "vitals_current": session["vitals"],
+        "history": history
+    })
+
+# ==================== CLINICAL SYMPTOM ANALYSIS ENDPOINTS ====================
+
+@app.route("/api/analyze", methods=["POST"])
+def analyze():
+    """
+    Runs multi-model symptom analyses using the Groq LPU API or local Clinical Simulation fallbacks.
+    """
+    data = request.get_json() or {}
+    symptom_text = data.get("symptom_text", "")
+    demographics = data.get("demographics", {})
+    severity = data.get("severity", 5)
+    duration = data.get("duration", "1-3 Days")
+    force_fallback = data.get("force_fallback", False)
+    
+    api_key = os.environ.get("GROQ_API_KEY", "")
+    
+    # Check if Groq API key is present and active
+    if api_key.startswith("gsk_") and not force_fallback:
+        try:
+            # Call Groq API Llama-3.3-70B model
+            results = analyze_symptoms_groq(
+                api_key=api_key,
+                symptom_text=symptom_text,
+                demographics=demographics,
+                severity=severity,
+                duration=duration
+            )
+            # Fetch corresponding local key matching to map guidelines layout
+            symptom_key, _, _ = get_clinical_analysis(symptom_text)
+            return jsonify({
+                "success": True,
+                "symptom_key": symptom_key,
+                "results": results,
+                "engine": "Groq LPU API"
+            })
+        except Exception as e:
+            # Resilient fallback to local clinical simulation parser
+            err_msg = str(e)
+            symptom_key, conditions, treatment_plan = get_clinical_analysis(symptom_text)
+            results = {
+                "conditions": conditions,
+                "treatment_plan": treatment_plan
             }
-        )
-        fig2.update_layout(
-            paper_bgcolor='rgba(0,0,0,0)',
-            plot_bgcolor='rgba(0,0,0,0)',
-            font_color='#94A3B8',
-            xaxis=dict(showgrid=True, gridcolor='rgba(255,255,255,0.05)', title=""),
-            yaxis=dict(showgrid=True, gridcolor='rgba(255,255,255,0.05)', title="Metric Value"),
-            legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1, title=""),
-            margin=dict(l=20, r=20, t=10, b=20)
-        )
-        st.plotly_chart(fig2, use_container_width=True)
-        st.markdown('</div>', unsafe_allow_html=True)
-
-    # Weekly AI Insight card
-    st.markdown(
-        '<div class="glass-card" style="border-left: 5px solid #06B6D4;">'
-        '<h4 style="color: #06B6D4; font-family: \'Outfit\'; margin-top:0; font-size:1.15rem; display: flex; align-items: center; gap: 8px;">'
-        '🧠 AI Health Intelligence Insights</h4>'
-        '<p style="color: #CBD5E1; font-size: 0.95rem; line-height: 1.6;">'
-        '🔍 <strong>Trend Observation:</strong> Over the past 7 days, your active minutes and sleep schedule show strong stabilization. '
-        'Your daily symptom severity shows a <strong>decrease of 62%</strong> (improving from 7 to 2 out of 10) starting around May 18, which correlates '
-        'closely with your hydration levels increasing from 4 glasses to 8 glasses of water daily.'
-        '</p>'
-        '<p style="color: #94A3B8; font-size: 0.85rem; margin-top: 10px;">'
-        '💡 <strong>Recommendations:</strong> Maintain a stable hydration regimen (target: 8 glasses/day). '
-        'Continue prioritizing sleep hygiene, aiming for 7-8 hours. If symptoms reappear or aggravate during physical active cycles, '
-        'scale back exercise intensity and log the trigger event in the Symptom Analyzer.'
-        '</p>'
-        '</div>',
-        unsafe_allow_html=True
-    )
-
-# ----------------- PAGE 2: SYMPTOM ANALYZER -----------------
-elif navigation == "🩺 Predictive Symptom Analyzer":
-    st.markdown('<h2 style="font-family: \'Outfit\'; font-size: 2.2rem; color: #FFF; margin-bottom: 20px;">🩺 Proactive Disease & Symptom Analyzer</h2>', unsafe_allow_html=True)
-    
-    st.markdown('<div class="glass-card">', unsafe_allow_html=True)
-    st.markdown('<h3 style="color: #06B6D4; font-family: \'Outfit\'; margin-top:0;">1. Enter Patient Presentation</h3>', unsafe_allow_html=True)
-    
-    # Clickable suggestion chips
-    st.write("💡 **Quick Symptom Presets (Click to test):**")
-    col_s1, col_s2, col_s3, col_s4, col_s5 = st.columns(5)
-    with col_s1:
-        if st.button("🫁 Tight Chest Pain", use_container_width=True):
-            st.session_state.symptom_input = "severe pressure and tightness in chest, difficulty breathing"
-    with col_s2:
-        if st.button("🧠 Throbbing Migraine", use_container_width=True):
-            st.session_state.symptom_input = "throbbing headache on left side of head, sensitive to light and noise"
-    with col_s3:
-        if st.button("🤒 High Fever & Cough", use_container_width=True):
-            st.session_state.symptom_input = "dry persistent cough, body chills, mild sore throat, shivering fever"
-    with col_s4:
-        if st.button("🦵 Clicking Knee Pain", use_container_width=True):
-            st.session_state.symptom_input = "stiff and aching knee joint, clicking pops during walking up stairs"
-    with col_s5:
-        if st.button("🧴 Itchy Red Skin Rash", use_container_width=True):
-            st.session_state.symptom_input = "localized red itchy rash on skin after using new laundry detergent"
-            
-    # Text input
-    symptom_desc = st.text_area(
-        "Describe what physical symptoms you are currently experiencing in detail:",
-        value=st.session_state.symptom_input,
-        placeholder="Provide symptoms, timing, locations, and onset details...",
-        height=120
-    )
-    # Sync manual edit back to session state
-    st.session_state.symptom_input = symptom_desc
-
-    st.markdown('<div style="height: 10px;"></div>', unsafe_allow_html=True)
-    
-    c_form1, c_form2 = st.columns(2)
-    with c_form1:
-        severity = st.slider("Rate Current Symptom Severity (1 = Barely noticeable, 10 = Severe/Intolerable)", 1, 10, 5)
-    with c_form2:
-        duration = st.selectbox(
-            "Onset Duration:",
-            ["Less than 24 hours", "1-3 Days", "4-7 Days", "1-2 Weeks", "More than 2 Weeks"]
-        )
-        
-    st.markdown('<div style="height: 15px;"></div>', unsafe_allow_html=True)
-    
-    # Active mode summary badge
-    if st.session_state.api_mode == "Groq Live API Mode":
-        st.markdown(
-            f'<div style="text-align: center; margin-bottom: 15px; color: #A855F7;">'
-            f'🌐 Engine: <strong>Groq LPU API ({st.session_state.groq_model})</strong> active</div>', 
-            unsafe_allow_html=True
-        )
+            return jsonify({
+                "success": True,
+                "symptom_key": symptom_key,
+                "results": results,
+                "engine": "Local Clinical Simulation (Groq Connection Offline)",
+                "api_error": err_msg
+            })
     else:
-        st.markdown(
-            '<div style="text-align: center; margin-bottom: 15px; color: #06B6D4;">'
-            '💻 Engine: <strong>Local Clinical Simulation Parser</strong> active</div>', 
-            unsafe_allow_html=True
-        )
+        # Run local Clinical NLP Simulation parser
+        symptom_key, conditions, treatment_plan = get_clinical_analysis(symptom_text)
+        results = {
+            "conditions": conditions,
+            "treatment_plan": treatment_plan
+        }
+        return jsonify({
+            "success": True,
+            "symptom_key": symptom_key,
+            "results": results,
+            "engine": "Local Clinical Simulation Engine"
+        })
 
-    # Submit button
-    submit_btn = st.button("🚀 RUN PROACTIVE CLINICAL ASSESSMENT", use_container_width=True)
-    st.markdown('</div>', unsafe_allow_html=True)
+# ==================== GROQ MODEL COMPARATOR ENDPOINT ====================
 
-    if submit_btn:
-        if not symptom_desc.strip():
-            st.error("⚠️ Please describe your symptoms or select one of the quick presets above before running the assessment.")
-        else:
-            with st.spinner("⏳ Analyzing medical knowledge base & patient demographics..."):
-                # Simulation vs Groq api logic
-                if st.session_state.api_mode == "Groq Live API Mode":
-                    if not st.session_state.groq_api_key.strip():
-                        st.error("❌ Groq API Key is missing. Please expand the 'Groq LPU Config' in the sidebar and enter your key, or toggle to 'Simulation Mode'.")
-                    else:
-                        try:
-                            # Call Groq API
-                            analysis = analyze_symptoms_groq(
-                                api_key=st.session_state.groq_api_key,
-                                symptom_text=symptom_desc,
-                                demographics=st.session_state.demographics,
-                                severity=severity,
-                                duration=duration,
-                                model=st.session_state.groq_model
-                            )
-                            st.session_state.analysis_results = analysis
-                            # Try matching active symptom key for treatment plan mapping
-                            symptom_key, _, _ = get_clinical_analysis(symptom_desc)
-                            st.session_state.active_symptom_key = symptom_key
-                            st.success("✅ Generative clinical analysis complete via Groq LPU API!")
-                        except Exception as e:
-                            err_msg = str(e)
-                            if "401" in err_msg or "api_key" in err_msg.lower():
-                                st.error("❌ **Groq Authentication Failed (401 - Invalid API Key)**:\n\nThe API key written in `app.py` has been rejected by Groq. Please generate a new key on your [Groq Console](https://console.groq.com/keys) and update it in the sidebar under **Groq LPU Config** or edit `app.py` directly.")
-                            else:
-                                st.error(f"❌ Groq API Error: {err_msg}")
-                            st.info("💡 Falling back to Local Clinical Simulation Mode to maintain experience.")
-                            symptom_key, conditions, treatment_plan = get_clinical_analysis(symptom_desc)
-                            st.session_state.analysis_results = {
-                                "conditions": conditions,
-                                "treatment_plan": treatment_plan
-                            }
-                            st.session_state.active_symptom_key = symptom_key
-                else:
-                    # Run NLP Simulation Mode
-                    time.sleep(1.2) # Simulate network lag
-                    symptom_key, conditions, treatment_plan = get_clinical_analysis(symptom_desc)
-                    st.session_state.analysis_results = {
-                        "conditions": conditions,
-                        "treatment_plan": treatment_plan
-                    }
-                    st.session_state.active_symptom_key = symptom_key
-                    st.success("✅ Clinical pre-screening simulation complete!")
-
-    # Display results
-    if st.session_state.analysis_results:
-        results = st.session_state.analysis_results
-        st.markdown('<div class="glass-card">', unsafe_allow_html=True)
-        st.markdown('<h3 style="color: #8B5CF6; font-family: \'Outfit\'; margin-top:0;">📊 Proactive Condition Likelihood Assessment</h3>', unsafe_allow_html=True)
+@app.route("/api/compare", methods=["POST"])
+def compare():
+    """
+    Benchmarks multiple Groq models concurrently against the same symptom prompt.
+    Returns latency, word counts, token speeds, and analysis outputs side-by-side.
+    """
+    if not session.get("logged_in"):
+        return jsonify({"success": False, "message": "Unauthorized access."}), 401
         
-        st.write("Below are potential non-critical clinical conditions that align with your symptom profile and demographics:")
-        st.markdown('<div style="height: 10px;"></div>', unsafe_allow_html=True)
-        
-        for cond in results["conditions"]:
-            risk_class = "badge-low"
-            if cond["risk"] == "HIGH":
-                risk_class = "badge-high"
-            elif cond["risk"] == "MEDIUM":
-                risk_class = "badge-med"
-                
-            col_left, col_right = st.columns([7, 3])
-            with col_left:
-                st.markdown(
-                    f'<span style="font-size: 1.15rem; font-weight: 700; color: #FFF;">{cond["name"]}</span> '
-                    f'<span class="badge {risk_class}" style="margin-left: 8px;">{cond["risk"]} RISK</span>',
-                    unsafe_allow_html=True
-                )
-                st.write(cond["nlp_reason"])
-            with col_right:
-                st.markdown(f'<div style="text-align: right; margin-bottom: 5px; font-weight: 600; color: #06B6D4;">Likelihood: {cond["likelihood"]}%</div>', unsafe_allow_html=True)
-                st.progress(cond["likelihood"] / 100.0)
-                
-            st.markdown('<hr style="border-top: 1px dashed rgba(255, 255, 255, 0.08); margin: 15px 0;">', unsafe_allow_html=True)
-            
-        st.markdown(
-            '<div style="text-align: center; margin-top: 10px;">'
-            '<p style="color: #94A3B8;">📋 Care plan generated. Navigate to the <strong>"Personalized Treatment Plans"</strong> tab in the sidebar to view care checklists and critical safety warnings.</p>'
-            '</div>',
-            unsafe_allow_html=True
-        )
-        st.markdown('</div>', unsafe_allow_html=True)
-
-# ----------------- PAGE 3: TREATMENT PLANS -----------------
-elif navigation == "📋 Personalized Treatment Plans":
-    st.markdown('<h2 style="font-family: \'Outfit\'; font-size: 2.2rem; color: #FFF; margin-bottom: 20px;">📋 Personalized Clinical Care Guidelines</h2>', unsafe_allow_html=True)
+    data = request.get_json() or {}
+    symptom_text = data.get("symptom_text", "")
+    demographics = data.get("demographics", {})
+    severity = data.get("severity", 5)
+    duration = data.get("duration", "1-3 Days")
+    models = data.get("models", [])
     
-    # Load fallback preset if no analysis exists
-    if not st.session_state.analysis_results:
-        st.markdown(
-            '<div class="glass-card" style="text-align: center; padding: 40px 20px;">'
-            '<h4>🔍 No Active Care Plan Found</h4>'
-            '<p style="color: #94A3B8;">You have not run a symptom analysis yet in this session. '
-            'Please select one of the following preset conditions to generate a mock clinical care guidelines plan for review:</p>'
-            '</div>',
-            unsafe_allow_html=True
-        )
+    if not symptom_text:
+        return jsonify({"success": False, "message": "Symptom prompt query is required."}), 400
         
-        col_c1, col_c2, col_c3 = st.columns(3)
-        with col_c1:
-            if st.button("📋 Load Chest Pain Care Plan", use_container_width=True):
-                st.session_state.active_symptom_key = "chest_pain"
-                st.session_state.analysis_results = {
-                    "conditions": CLINICAL_DATABASE["chest_pain"]["conditions"],
-                    "treatment_plan": CLINICAL_DATABASE["chest_pain"]["treatment_plan"]
-                }
-                st.rerun()
-        with col_c2:
-            if st.button("📋 Load Migraine Care Plan", use_container_width=True):
-                st.session_state.active_symptom_key = "headache"
-                st.session_state.analysis_results = {
-                    "conditions": CLINICAL_DATABASE["headache"]["conditions"],
-                    "treatment_plan": CLINICAL_DATABASE["headache"]["treatment_plan"]
-                }
-                st.rerun()
-        with col_c3:
-            if st.button("📋 Load Flu & Cough Care Plan", use_container_width=True):
-                st.session_state.active_symptom_key = "flu_cough"
-                st.session_state.analysis_results = {
-                    "conditions": CLINICAL_DATABASE["flu_cough"]["conditions"],
-                    "treatment_plan": CLINICAL_DATABASE["flu_cough"]["treatment_plan"]
-                }
-                st.rerun()
-                
+    if not models:
+        return jsonify({"success": False, "message": "Select at least one Groq model to benchmark."}), 400
+        
+    api_key = os.environ.get("GROQ_API_KEY", "")
+    if not api_key.startswith("gsk_"):
+        return jsonify({
+            "success": False, 
+            "message": "Live API Mode is disabled. To run benchmarks, please configure a valid Groq API Key starting with 'gsk_' in the .env file."
+        }), 400
+        
+    benchmarks = []
+    
+    for model in models:
+        try:
+            start_time = time.time()
+            results = analyze_symptoms_groq(
+                api_key=api_key,
+                symptom_text=symptom_text,
+                demographics=demographics,
+                severity=severity,
+                duration=duration,
+                model=model
+            )
+            latency = round(time.time() - start_time, 2)
+            
+            # Compute output statistics
+            response_str = str(results)
+            word_count = len(response_str.split())
+            # Estimate tokens (~1.35 tokens per word for structured json completions)
+            tokens_estimated = int(word_count * 1.35)
+            tokens_per_sec = round(tokens_estimated / (latency if latency > 0 else 0.1), 1)
+            
+            benchmarks.append({
+                "model": model,
+                "latency": latency,
+                "word_count": word_count,
+                "tokens_per_sec": tokens_per_sec,
+                "results": results,
+                "success": True
+            })
+        except Exception as e:
+            benchmarks.append({
+                "model": model,
+                "success": False,
+                "error": str(e)
+            })
+            
+    return jsonify({"success": True, "benchmarks": benchmarks})
+
+# ==================== EMPATHETIC CHATBOT API ENDPOINTS ====================
+
+@app.route("/api/chat", methods=["POST"])
+def chat():
+    """
+    Orchestrates the 24/7 empathetic patient chat using Groq or local response routers.
+    """
+    data = request.get_json() or {}
+    message = data.get("message", "")
+    history = data.get("history", [])
+    demographics = data.get("demographics", {})
+    
+    api_key = os.environ.get("GROQ_API_KEY", "")
+    
+    if api_key.startswith("gsk_"):
+        try:
+            # Call Groq Chat API Llama-3.3-70B model
+            response = chat_with_empathy_groq(
+                api_key=api_key,
+                conversation_history=history,
+                user_message=message,
+                demographics=demographics
+            )
+            return jsonify({"success": True, "response": response})
+        except Exception as e:
+            # Resilient fallback on exception
+            fallback_resp = get_simulated_chat_response(message)
+            combined = f"[API connection offline: {str(e)} (Falling back to Clinical Guide)]\n\n{fallback_resp}"
+            return jsonify({"success": True, "response": combined})
     else:
-        results = st.session_state.analysis_results
-        plan = results.get("treatment_plan", {})
-        topic_name = st.session_state.active_symptom_key.replace("_", " ").upper()
-        
-        # RED FLAG SYSTEM WARNINGS - CRITICAL
-        red_flags_html = "".join([f"<li>{item}</li>" for item in plan.get("red_flags", [])])
-        st.markdown(
-            f'<div class="red-flag-box">'
-            f'<div class="red-flag-title">⚠️ CRITICAL SAFETY WARNING (RED FLAGS - SEEK EMERGENCY CARE)</div>'
-            f'<p style="color: #F87171; font-size: 0.9rem; margin-bottom: 8px;">'
-            f'If you experience any of the symptoms below, discontinue self-care immediately and call 911 or visit the nearest ER:</p>'
-            f'<ul style="color: #FCA5A5; font-size: 0.9rem; margin-left: 20px; line-height: 1.5;">{red_flags_html}</ul>'
-            f'</div>',
-            unsafe_allow_html=True
-        )
-        
-        st.markdown(f'<h3 style="color: #06B6D4; font-family: \'Outfit\'; margin-bottom: 20px;">Tailored Guidelines: {topic_name} Support</h3>', unsafe_allow_html=True)
-        
-        # 3 Column Care Layout
-        col_t1, col_t2, col_t3 = st.columns(3)
-        
-        with col_t1:
-            st.markdown('<div class="glass-card" style="height: 100%;">', unsafe_allow_html=True)
-            st.markdown('<h4 style="color: #3B82F6; font-family: \'Outfit\'; margin-top:0;">🛑 Immediate Actions</h4>', unsafe_allow_html=True)
-            st.write("Initial steps to manage physical discomfort and prioritize stability:")
-            for idx, act in enumerate(plan.get("immediate_actions", [])):
-                st.markdown(f"**{idx+1}.** {act}")
-            st.markdown('</div>', unsafe_allow_html=True)
-            
-        with col_t2:
-            st.markdown('<div class="glass-card" style="height: 100%;">', unsafe_allow_html=True)
-            st.markdown('<h4 style="color: #10B981; font-family: \'Outfit\'; margin-top:0;">🥗 Dietary Adjustments</h4>', unsafe_allow_html=True)
-            st.write("Nutritional adjustments to assist immunological recovery or reduce inflammation:")
-            for idx, diet in enumerate(plan.get("dietary", [])):
-                st.markdown(f"**{idx+1}.** {diet}")
-            st.markdown('</div>', unsafe_allow_html=True)
-            
-        with col_t3:
-            st.markdown('<div class="glass-card" style="height: 100%;">', unsafe_allow_html=True)
-            st.markdown('<h4 style="color: #8B5CF6; font-family: \'Outfit\'; margin-top:0;">🏃‍♂️ Lifestyle Modifications</h4>', unsafe_allow_html=True)
-            st.write("Longer-term actions to build biological resilience and eliminate pain triggers:")
-            for idx, life in enumerate(plan.get("lifestyle", [])):
-                st.markdown(f"**{idx+1}.** {life}")
-            st.markdown('</div>', unsafe_allow_html=True)
-            
-        st.markdown('<div style="height: 20px;"></div>', unsafe_allow_html=True)
-        st.info("💡 Pro-Tip: You can export this care plan or write specific questions about these guidelines in the '24/7 Conversational Chat' tab to discuss with your doctor.")
+        # Call local simulated chatbot response router
+        response = get_simulated_chat_response(message)
+        return jsonify({"success": True, "response": response})
 
-# ----------------- PAGE 4: 24/7 PATIENT CHAT -----------------
-elif navigation == "💬 24/7 Conversational Chat":
-    st.markdown('<h2 style="font-family: \'Outfit\'; font-size: 2.2rem; color: #FFF; margin-bottom: 20px;">💬 24/7 Conversational Patient Chat Assistant</h2>', unsafe_allow_html=True)
-    
-    st.write("Discuss your symptoms, ask questions about care guidelines, or seek clarifications about clinical facts in real-time. Our assistant communicates with professional medical facts and empathy.")
-    
-    # Pre-programmed suggestion chips
-    st.write("💡 **Quick Queries (Click to ask):**")
-    col_q1, col_q2, col_q3, col_q4 = st.columns(4)
-    preset_query = ""
-    with col_q1:
-        if st.button("🚨 What are chest pain emergency red flags?", use_container_width=True):
-            preset_query = "What are the emergency red flags I should watch out for if I have chest pain?"
-    with col_q2:
-        if st.button("💆 How can I manage migraines at home?", use_container_width=True):
-            preset_query = "What are the best home remedies and lifestyle modifications for dealing with migraine headaches?"
-    with col_q3:
-        if st.button("🤒 What dietary changes help when having a flu?", use_container_width=True):
-            preset_query = "What are the best foods and hydration tips to recover quickly from influenza fever and dry cough?"
-    with col_q4:
-        if st.button("🤝 I feel anxious about my symptoms. Help.", use_container_width=True):
-            preset_query = "I am feeling extremely anxious and worried about my physical symptoms. Can you give me some reassurance?"
+# ==================== RUN APPLICATION ====================
 
-    # Chat history display area
-    st.markdown('<div class="chat-container">', unsafe_allow_html=True)
-    for msg in st.session_state.chat_history:
-        avatar = "👤" if msg["role"] == "user" else "⚕️"
-        bubble_class = "user" if msg["role"] == "user" else "assistant"
-        
-        st.markdown(
-            f'<div class="chat-bubble {bubble_class}">'
-            f'<div class="chat-avatar">{avatar}</div>'
-            f'<div>{msg["content"]}</div>'
-            f'</div>',
-            unsafe_allow_html=True
-        )
-    st.markdown('</div>', unsafe_allow_html=True)
-
-    # Chat input logic
-    user_chat_msg = st.chat_input("Enter your health question here...")
-    
-    # Override with preset click if applicable
-    if preset_query != "":
-        user_chat_msg = preset_query
-
-    if user_chat_msg:
-        # Append User Message
-        st.session_state.chat_history.append({"role": "user", "content": user_chat_msg})
-        st.rerun()
-
-    # Trigger Assistant Response if last message is from user
-    if len(st.session_state.chat_history) > 0 and st.session_state.chat_history[-1]["role"] == "user":
-        user_msg = st.session_state.chat_history[-1]["content"]
-        
-        with st.spinner("⏳ Assistant is typing..."):
-            if st.session_state.api_mode == "Groq Live API Mode":
-                if not st.session_state.groq_api_key.strip():
-                    response_text = "❌ Groq API Key is missing. Please configure it in the sidebar settings or switch to 'Simulation Mode'."
-                else:
-                    try:
-                        response_text = chat_with_empathy_groq(
-                            api_key=st.session_state.groq_api_key,
-                            conversation_history=st.session_state.chat_history[:-1],
-                            user_message=user_msg,
-                            demographics=st.session_state.demographics,
-                            model=st.session_state.groq_model
-                        )
-                    except Exception as e:
-                        err_msg = str(e)
-                        if "401" in err_msg or "api_key" in err_msg.lower():
-                            response_text = "❌ **Groq Authentication Failed (401 - Invalid API Key)**:\n\nThe API key in use was rejected by Groq. Please create a new key on your **[Groq Console](https://console.groq.com/keys)** and update it in the sidebar settings or edit the code."
-                        else:
-                            response_text = f"❌ API Error: {err_msg}\n\n*Falling back to local clinical guide responses.*"
-                        
-                        # Fallback response
-                        fallback_resp = get_simulated_chat_response(user_msg)
-                        response_text += f"\n\n⚕️ **Clinical Guide Response:** {fallback_resp}"
-            else:
-                time.sleep(1.0) # Simulate typing delay
-                response_text = get_simulated_chat_response(user_msg)
-                
-            # Append Assistant Message
-            st.session_state.chat_history.append({"role": "assistant", "content": response_text})
-            st.rerun()
-
-    # Clear chat button
-    st.markdown('<div style="height: 10px;"></div>', unsafe_allow_html=True)
-    if st.button("🗑️ Clear Chat History", use_container_width=True):
-        st.session_state.chat_history = [
-            {
-                "role": "assistant",
-                "content": "Hello! I am your 24/7 AI Medical Assistant. How are you feeling today? You can describe any symptoms you are experiencing, and I will offer clinical facts and empathetic guidance."
-            }
-        ]
-        st.rerun()
+if __name__ == "__main__":
+    # Start the Flask web application
+    app.run(debug=True)

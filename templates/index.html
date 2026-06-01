@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Healthcare Intelligence AI - Medical Symptom Analyzer</title>
+    <!-- Vector Favicon (Emoji-Free) -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%2306B6D4'/><path d='M35 50 H65 M50 35 V65' stroke='%23FFF' stroke-width='12' stroke-linecap='round'/></svg>">
+    <!-- FontAwesome for standard professional icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom Style Sheet -->
+    <link rel="stylesheet" href="/static/css/styles.css">
+    <!-- Chart.js for premium neon data plotting -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+    <!-- ==================== 1. LANDING PAGE OVERLAY ==================== -->
+    <div id="landing-page" class="full-overlay">
+        <div class="mock-nav">
+            <div style="display:flex; align-items:center; gap:8px;">
+                <span style="font-size:1.8rem;"><i class="fa-solid fa-hand-holding-medical" style="color:var(--cyan-primary);"></i></span>
+                <span style="font-family:'Outfit'; font-weight:800; font-size:1.45rem; color:#FFF;">Health Intel AI</span>
+            </div>
+            <div style="color:var(--text-muted); font-size:0.85rem; font-family:'Outfit'; font-weight:600; letter-spacing: 0.05em;">PREMIUM PRE-SCREENING</div>
+        </div>
+
+        <div style="display: flex; flex-wrap: wrap; gap: 40px; align-items: center; margin-top: 20px;">
+            <!-- Left Text Column -->
+            <div style="flex: 6; min-width: 320px;">
+                <span class="badge badge-low" style="font-size: 0.85rem; padding: 6px 14px; margin-bottom: 20px;">
+                    <i class="fa-solid fa-shield-halved"></i> Clinical Intelligence System
+                </span>
+                <h1 style="font-size: 3.4rem; font-family:'Outfit'; font-weight:900; line-height:1.1; margin-bottom:20px;">
+                    The Future of <span style="background: linear-gradient(135deg, var(--cyan-primary) 0%, var(--blue-primary) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Healthcare Intelligence</span>
+                </h1>
+                <p style="font-size: 1.15rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 35px; font-family:'Inter';">
+                    Empowering individuals with clinical-grade symptom assessments, visual health analytics, and empathetic conversational guidance.
+                    Equipped with ultra-fast LLM capabilities to deliver predictive wellness pre-screenings in seconds.
+                </p>
+                <div style="display: flex; gap: 20px; align-items: center;">
+                    <button id="btn-enter-auth" class="btn btn-primary" style="font-size: 1rem; padding: 14px 28px;">
+                        <i class="fa-solid fa-right-to-bracket"></i> ENTER PLATFORM
+                    </button>
+                    <span style="color:var(--text-muted); font-size:0.9rem; font-weight: 500;">🔒 100% Client-Side Safe</span>
+                </div>
+            </div>
+
+            <!-- Right 3D Flip Card Column -->
+            <div style="flex: 4; min-width: 300px; display: flex; justify-content: center;">
+                <div class="scene3d">
+                    <div class="card3d">
+                        <div class="card3d-front">
+                            <div class="pulse-badge">Hover to Flip</div>
+                            <i class="fa-solid fa-briefcase-medical floating-icon" style="color:var(--cyan-primary); font-size:4.5rem; display:block; margin-bottom:25px;"></i>
+                            <h3 style="color:#FFF; font-family:'Outfit'; font-size:1.6rem; font-weight:700; margin:0 0 10px 0;">Health Intel AI</h3>
+                            <p style="color:var(--text-muted); font-size:0.9rem; line-height:1.4; margin:0;">Generative Pre-screening & High-Fidelity Vitals Dashboarding</p>
+                        </div>
+                        <div class="card3d-back">
+                            <span class="badge badge-high" style="margin-bottom:15px;">Advanced Analytics</span>
+                            <h3 style="color:#FFF; font-family:'Outfit'; font-size:1.6rem; font-weight:700; margin:0 0 10px 0;">LPU Accelerated</h3>
+                            <p style="color:#CBD5E1; font-size:0.9rem; line-height:1.4; margin:0 0 20px 0;">Powered by Llama-3.3-70B on high-speed inference engines.</p>
+                            <div style="font-size:0.75rem; color:var(--purple-primary); font-weight:700; text-transform:uppercase; letter-spacing: 0.05em;">Click Enter Platform to Start</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <hr style="border-top: 1px solid var(--border-color); margin: 60px 0 40px 0;">
+        <h3 style="font-family:'Outfit'; color:#FFF; text-align:center; font-size:1.7rem; margin-bottom:25px;">Explore Our Core Modules</h3>
+        
+        <!-- 4 Grid Cards -->
+        <div class="landing-grid">
+            <div class="landing-grid-item">
+                <div class="landing-grid-icon" style="color:var(--cyan-primary);"><i class="fa-solid fa-chart-line"></i></div>
+                <h4 style="color:#FFF; font-family:'Outfit'; margin:0 0 8px 0; font-size:1.1rem;">Vitals & Analytics</h4>
+                <p style="color:var(--text-muted); font-size:0.85rem; line-height:1.4; margin:0;">Interactive patient timeline chart graphs mapping sleep, hydration, and symptom intensity histories.</p>
+            </div>
+            <div class="landing-grid-item">
+                <div class="landing-grid-icon" style="color:var(--blue-primary);"><i class="fa-solid fa-stethoscope"></i></div>
+                <h4 style="color:#FFF; font-family:'Outfit'; margin:0 0 8px 0; font-size:1.1rem;">Predictive Analyzer</h4>
+                <p style="color:var(--text-muted); font-size:0.85rem; line-height:1.4; margin:0;">AI-driven pre-screening assessment that weighs demographics and returns risk factors immediately.</p>
+            </div>
+            <div class="landing-grid-item">
+                <div class="landing-grid-icon" style="color:var(--purple-primary);"><i class="fa-solid fa-file-medical"></i></div>
+                <h4 style="color:#FFF; font-family:'Outfit'; margin:0 0 8px 0; font-size:1.1rem;">Treatment Plans</h4>
+                <p style="color:var(--text-muted); font-size:0.85rem; line-height:1.4; margin:0;">Actionable dietary guidelines, healthy lifestyle alterations, and critical Red Flag warning systems.</p>
+            </div>
+            <div class="landing-grid-item">
+                <div class="landing-grid-icon" style="color:#EC4899;"><i class="fa-solid fa-comments"></i></div>
+                <h4 style="color:#FFF; font-family:'Outfit'; margin:0 0 8px 0; font-size:1.1rem;">Empathetic Chat</h4>
+                <p style="color:var(--text-muted); font-size:0.85rem; line-height:1.4; margin:0;">A supportive, 24/7 conversational medical virtual assistant built on high-fidelity clinical principles.</p>
+            </div>
+        </div>
+        <div style="height: 50px;"></div>
+    </div>
+
+    <!-- ==================== 2. AUTHENTICATION OVERLAY ==================== -->
+    <div id="auth-page" class="full-overlay d-none">
+        <button id="btn-back-home" class="btn btn-secondary" style="margin-bottom: 20px;">
+            <i class="fa-solid fa-arrow-left"></i> Back to Home
+        </button>
+
+        <div class="auth-container">
+            <div class="auth-header">
+                <i class="fa-solid fa-lock" style="font-size:2.2rem; color:var(--cyan-primary); display:block; margin-bottom:10px;"></i>
+                <div class="auth-title">Secure Portal Access</div>
+                <div class="auth-subtitle">Sign in or create a profile to launch analytics</div>
+            </div>
+
+            <!-- Tab Switchers -->
+            <div class="auth-tabs">
+                <div id="tab-login-btn" class="auth-tab active"><i class="fa-solid fa-lock"></i> Sign In</div>
+                <div id="tab-signup-btn" class="auth-tab"><i class="fa-solid fa-plus"></i> Create Profile</div>
+            </div>
+
+            <!-- Login Form -->
+            <div id="form-login" class="auth-form-panel active">
+                <div class="form-group">
+                    <label>Email Address</label>
+                    <input type="text" id="login-email" value="patient@healthintel.ai" placeholder="patient@healthintel.ai">
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="login-pass" value="health123" placeholder="••••••••">
+                </div>
+                <button id="submit-login" class="btn btn-primary" style="margin-top: 10px;">
+                    <i class="fa-solid fa-unlock"></i> AUTHORIZE & ENTER
+                </button>
+            </div>
+
+            <!-- Signup Form -->
+            <div id="form-signup" class="auth-form-panel">
+                <div class="form-group">
+                    <label>Full Name</label>
+                    <input type="text" id="signup-name" placeholder="John Doe">
+                </div>
+                <div class="form-group">
+                    <label>Email Address</label>
+                    <input type="text" id="signup-email" placeholder="john@example.com">
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="signup-pass" placeholder="Choose a secure password">
+                    <p style="font-size:0.7rem; color:var(--text-muted); margin-top: 3px;">
+                        <i class="fa-solid fa-shield-halved"></i> Password should be 8+ characters.
+                    </p>
+                </div>
+                <button id="submit-signup" class="btn btn-primary" style="margin-top: 10px;">
+                    <i class="fa-solid fa-user-plus"></i> REGISTER ACCOUNT
+                </button>
+            </div>
+            
+            <div id="auth-error-msg" class="badge badge-high d-none" style="margin-top: 20px; width: 100%; text-align: center; padding: 8px;"></div>
+        </div>
+    </div>
+
+    <!-- ==================== 3. MAIN APPLICATION COCKPIT ==================== -->
+    <div id="app-shell" class="app-container d-none">
+        
+        <!-- Sidebar Shell -->
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; width:100%;">
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <span style="font-size:1.6rem;"><i class="fa-solid fa-hand-holding-medical" style="color:var(--cyan-primary);"></i></span>
+                        <h1 style="margin:0; font-size:1.45rem;">Health Intel AI</h1>
+                    </div>
+                     <button id="theme-toggle" class="btn btn-primary" style="padding: 6px 12px; font-size:0.8rem; text-transform:none; border-radius:8px;">
+                         <i class="fa-solid fa-sun" id="theme-icon"></i>
+                     </button>
+                </div>
+                <p>Medical Symptom Analyzer</p>
+            </div>
+
+            <!-- Personalized Greeting -->
+            <div class="user-badge">
+                <i class="fa-solid fa-circle-user" style="font-size: 1.1rem; color: var(--cyan-primary);"></i>
+                Welcome, <strong id="user-display-name">Patient</strong>!
+            </div>
+
+            <hr style="border-top: 1px solid var(--border-color); margin-bottom: 20px;">
+
+            <!-- Navigation Links -->
+            <p class="sidebar-section-title">Navigation</p>
+            <nav class="nav-menu">
+                <div class="nav-item active" data-target="dashboard">
+                    <i class="fa-solid fa-chart-line"></i> Dashboard & Vitals
+                </div>
+                <div class="nav-item" data-target="analyzer">
+                    <i class="fa-solid fa-stethoscope"></i> Symptom Analyzer
+                </div>
+                <div class="nav-item" data-target="guidelines">
+                    <i class="fa-solid fa-file-medical"></i> Care Guidelines
+                </div>
+                <div class="nav-item" data-target="chat">
+                    <i class="fa-solid fa-comments"></i> 24/7 Empathetic Chat
+                </div>
+            </nav>
+
+            <!-- Demographics Editor -->
+            <p class="sidebar-section-title">Patient Profile</p>
+            <details class="demographics-panel" open>
+                <summary><i class="fa-solid fa-pen-to-square"></i> Edit Demographics</summary>
+                <div class="demographics-form">
+                    <div class="form-group">
+                        <label style="font-size: 0.75rem;">Age: <span id="age-val-display" style="color: var(--cyan-primary); font-weight:700;">32</span></label>
+                        <input type="range" id="dem-age" min="1" max="100" value="32">
+                    </div>
+                    <div class="form-group">
+                        <label style="font-size: 0.75rem;">Gender</label>
+                        <select id="dem-gender">
+                            <option value="Male" selected>Male</option>
+                            <option value="Female">Female</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label style="font-size: 0.75rem;">Pre-existing Conditions</label>
+                        <input type="text" id="dem-preexisting" value="None" placeholder="e.g. Hypertension">
+                    </div>
+                    <div class="form-group">
+                        <label style="font-size: 0.75rem;">Active Medications</label>
+                        <input type="text" id="dem-medications" value="None" placeholder="e.g. Aspirin">
+                    </div>
+                </div>
+            </details>
+
+            <!-- Medical Disclaimer -->
+            <div class="sidebar-disclaimer">
+                <i class="fa-solid fa-triangle-exclamation"></i> <strong>MEDICAL DISCLAIMER:</strong> This AI system provides educational pre-screening guidance only. It does NOT replace professional physical exams, diagnosis, or emergency ER care. <strong>If in emergency, call 911 immediately.</strong>
+            </div>
+
+            <!-- Logout Link -->
+            <hr style="border-top: 1px solid var(--border-color); margin: 15px 0;">
+            <button id="btn-logout" class="btn btn-secondary" style="font-size: 0.8rem; padding: 10px; width: 100%;">
+                <i class="fa-solid fa-lock"></i> LOG OUT FROM SESSION
+            </button>
+        </aside>
+
+        <!-- Main Cockpit Viewport -->
+        <main class="main-content">
+            
+            <!-- Header Banner -->
+            <div class="hero-banner">
+                <h1 class="gradient-header">Healthcare Intelligence AI</h1>
+                <p class="hero-desc">
+                    Empowering patients with reliable, clinical-grade pre-screening analytics, personalized care insights, and empathetic conversational guidance.
+                </p>
+            </div>
+
+            <!-- ==================== PANEL 1: DASHBOARD ==================== -->
+            <section id="panel-dashboard" class="section-panel active">
+                <h2 style="font-size: 2.2rem; margin-bottom: 20px;"><i class="fa-solid fa-chart-line"></i> Patient Vitals & Health Analytics</h2>
+                
+                <!-- Expanded Interactive Vitals Logger Form (Implemented Feature #1!) -->
+                <details class="glass-card" style="border-left: 5px solid var(--cyan-primary); margin-bottom: 25px;">
+                    <summary style="font-family:'Outfit'; font-size:1.15rem; color:var(--cyan-primary); font-weight:700; cursor:pointer; outline:none;">
+                        <i class="fa-solid fa-pen-to-square"></i> Logger: Update Daily Patient Vitals
+                    </summary>
+                    <div style="margin-top: 15px; display:flex; flex-direction:column; gap:15px;">
+                        <p style="color:var(--text-muted); font-size:0.85rem;">Adjust the slider vitals parameters below to dynamically update the metric widgets and timeline tracking graphs:</p>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Heart Rate (BPM): <span id="log-hr-display" style="color:var(--cyan-primary); font-weight:700;">78</span></label>
+                                <input type="range" id="log-hr" min="40" max="150" value="78">
+                            </div>
+                            <div class="form-group">
+                                <label>Active Minutes: <span id="log-active-display" style="color:var(--blue-primary); font-weight:700;">45</span></label>
+                                <input type="range" id="log-active" min="0" max="180" value="45">
+                            </div>
+                            <div class="form-group">
+                                <label>Water Intake (Cups): <span id="log-water-display" style="color:var(--purple-primary); font-weight:700;">6</span></label>
+                                <input type="range" id="log-water" min="0" max="15" value="6">
+                            </div>
+                            <div class="form-group">
+                                <label>Health Score (%): <span id="log-score-display" style="color:var(--green-primary); font-weight:700;">92</span></label>
+                                <input type="range" id="log-score" min="0" max="100" value="92">
+                            </div>
+                        </div>
+                    </div>
+                </details>
+
+                <!-- Metrics Grid -->
+                <div class="metrics-row">
+                    <div class="metric-box">
+                        <div class="metric-value" style="color: var(--cyan-primary);"><span id="metric-hr">78</span> <span style="font-size: 0.9rem; color: var(--text-muted);">BPM</span></div>
+                        <div class="metric-label">Avg Heart Rate</div>
+                        <div id="metric-hr-badge" class="metric-subtext" style="color: var(--green-primary);">Normal Range</div>
+                    </div>
+                    <div class="metric-box">
+                        <div class="metric-value" style="color: var(--blue-primary);"><span id="metric-active">45</span> <span style="font-size: 0.9rem; color: var(--text-muted);">MIN</span></div>
+                        <div class="metric-label">Active Minutes</div>
+                        <div class="metric-subtext" style="color: var(--green-primary);">+15% vs Last Week</div>
+                    </div>
+                    <div class="metric-box">
+                        <div class="metric-value" style="color: var(--purple-primary);"><span id="metric-water">6</span> / 8 <span style="font-size: 0.9rem; color: var(--text-muted);">CUPS</span></div>
+                        <div class="metric-label">Water Intake</div>
+                        <div id="metric-water-badge" class="metric-subtext" style="color: var(--yellow-primary);">75% of Daily Target</div>
+                    </div>
+                    <div class="metric-box">
+                        <div class="metric-value" style="color: var(--green-primary);"><span id="metric-score">92</span>%</div>
+                        <div class="metric-label">Health Score</div>
+                        <div class="metric-subtext" style="color: var(--green-primary);">Excellent Health Index</div>
+                    </div>
+                </div>
+
+                <!-- 2 Column Chart Area -->
+                <div class="dashboard-grid">
+                    <div class="glass-card">
+                        <h3 class="card-title"><i class="fa-solid fa-heart-pulse"></i> Daily Symptom Severity Trend</h3>
+                        <div style="position: relative; height: 260px; width: 100%;">
+                            <!-- Updated chart canvas with explicit dimensions -->
+                            <canvas id="symptom-trend-chart" width="400" height="250"></canvas>
+                        </div>
+                    </div>
+                    <div class="glass-card">
+                        <h3 class="card-title"><i class="fa-solid fa-bed"></i> Vitals: Sleep & Activity Tracking</h3>
+                        <div style="position: relative; height: 260px; width: 100%;">
+                            <canvas id="vitals-group-chart" width="400" height="250"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Weekly Insights Card -->
+                <div class="glass-card" style="border-left: 5px solid var(--cyan-primary);">
+                    <h4 style="color: var(--cyan-primary); font-family: 'Outfit'; font-size:1.15rem; display: flex; align-items: center; gap: 8px; margin-bottom: 10px;">
+                        <i class="fa-solid fa-brain"></i> AI Health Intelligence Insights
+                    </h4>
+                    <p style="color: #CBD5E1; font-size: 0.95rem; line-height: 1.6; margin-bottom: 10px;">
+                        <i class="fa-solid fa-magnifying-glass"></i> <strong>Trend Observation:</strong> Over the past 7 days, your active minutes and sleep schedule show strong stabilization. Your daily symptom severity shows a <strong>decrease of 62%</strong> (improving from 7 to 2 out of 10) starting around May 18, which correlates closely with your hydration levels increasing from 4 glasses to 8 glasses of water daily.
+                    </p>
+                    <p style="color: var(--text-muted); font-size: 0.85rem;">
+                        <i class="fa-solid fa-lightbulb"></i> <strong>Recommendations:</strong> Maintain a stable hydration regimen (target: 8 glasses/day). Continue prioritizing sleep hygiene, aiming for 7-8 hours. If symptoms reappear or aggravate during physical active cycles, scale back exercise intensity and log the trigger event in the Symptom Analyzer.
+                    </p>
+                </div>
+            </section>
+
+            <!-- ==================== PANEL 2: ANALYZER ==================== -->
+            <section id="panel-analyzer" class="section-panel">
+                <h2 style="font-size: 2.2rem; margin-bottom: 20px;"><i class="fa-solid fa-stethoscope"></i> Proactive Disease & Symptom Analyzer</h2>
+                
+                <div class="glass-card">
+                    <h3 class="card-title"><i class="fa-solid fa-pen-clip"></i> 1. Enter Patient Presentation</h3>
+                    
+                    <!-- Preset chips -->
+                    <p style="font-size: 0.9rem; font-weight: 600; margin-bottom: 10px;"><i class="fa-solid fa-lightbulb"></i> Quick Symptom Presets (Click to test):</p>
+                    <div class="presets-container">
+                        <div class="preset-chip" data-symptom="severe pressure and tightness in chest, difficulty breathing">Tight Chest Pain</div>
+                        <div class="preset-chip" data-symptom="throbbing headache on left side of head, sensitive to light and noise">Throbbing Migraine</div>
+                        <div class="preset-chip" data-symptom="dry persistent cough, body chills, mild sore throat, shivering fever">High Fever & Cough</div>
+                        <div class="preset-chip" data-symptom="stiff and aching knee joint, clicking pops during walking up stairs">Clicking Knee Pain</div>
+                        <div class="preset-chip" data-symptom="localized red itchy rash on skin after using new laundry detergent">Itchy Red Skin Rash</div>
+                    </div>
+
+                    <!-- Text area -->
+                    <div class="form-group">
+                        <label>Describe what physical symptoms you are currently experiencing in detail:</label>
+                        <textarea id="symptom-desc" rows="4" placeholder="Provide symptoms, timing, locations, and onset details..."></textarea>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Rate Current Symptom Severity (1 = Barely noticeable, 10 = Severe/Intolerable): <span id="severity-val-display" style="color:var(--cyan-primary); font-weight:700;">5</span></label>
+                            <input type="range" id="symptom-severity" min="1" max="100" value="50">
+                        </div>
+                        <div class="form-group">
+                            <label>Onset Duration:</label>
+                            <select id="symptom-duration">
+                                <option value="Less than 24 hours">Less than 24 hours</option>
+                                <option value="1-3 Days" selected>1-3 Days</option>
+                                <option value="4-7 Days">4-7 Days</option>
+                                <option value="1-2 Weeks">1-2 Weeks</option>
+                                <option value="More than 2 Weeks">More than 2 Weeks</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Engines label -->
+                    <div id="engine-status-badge" style="text-align: center; margin-top: 15px; margin-bottom: 10px; color: var(--purple-primary); font-weight:600; font-size:0.9rem;">
+                        <!-- Updated by JS -->
+                    </div>
+
+                    <button id="btn-run-analysis" class="btn btn-primary" style="width: 100%; font-size: 1rem;">
+                        RUN PROACTIVE CLINICAL ASSESSMENT
+                    </button>
+                </div>
+
+                <!-- Analysis results panel -->
+                <div id="analyzer-results-wrapper" class="glass-card d-none">
+                    <h3 style="color: var(--purple-primary); font-family: 'Outfit'; margin-top:0; margin-bottom:10px;"><i class="fa-solid fa-chart-bar"></i> Proactive Condition Likelihood Assessment</h3>
+                    <p style="color: var(--text-muted); font-size:0.9rem; margin-bottom: 20px;">Below are potential non-critical clinical conditions that align with your symptom profile and demographics:</p>
+                    
+                    <div id="conditions-list-container">
+                        <!-- Filled by JS -->
+                    </div>
+
+                    <div style="text-align: center; margin-top: 20px;">
+                        <p style="color: var(--text-muted); font-size: 0.9rem;">Care plan generated. Navigate to the <strong>"Care Guidelines"</strong> tab in the sidebar menu to view checklists and critical safety warnings.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ==================== PANEL 4: GUIDELINES ==================== -->
+            <section id="panel-guidelines" class="section-panel">
+                <h2 style="font-size: 2.2rem; margin-bottom: 20px;"><i class="fa-solid fa-file-medical"></i> Personalized Clinical Care Guidelines</h2>
+                
+                <div id="guidelines-placeholder" class="glass-card" style="text-align: center; padding: 40px 20px;">
+                    <h4 style="margin-bottom: 10px;"><i class="fa-solid fa-magnifying-glass"></i> No Active Care Plan Found</h4>
+                    <p style="color: var(--text-muted); margin-bottom: 25px;">You have not run a symptom analysis yet in this session. Please select one of the following preset conditions to generate a mock clinical care guidelines plan for review:</p>
+                    <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
+                        <button class="btn btn-secondary btn-load-plan" data-type="chest_pain">Load Chest Pain Care Plan</button>
+                        <button class="btn btn-secondary btn-load-plan" data-type="headache">Load Migraine Care Plan</button>
+                        <button class="btn btn-secondary btn-load-plan" data-type="flu_cough">Load Flu & Cough Care Plan</button>
+                    </div>
+                </div>
+
+                <div id="guidelines-content-wrapper" class="d-none">
+                    <!-- Safety Alert blinking box -->
+                    <div class="red-flag-box">
+                        <div class="red-flag-title"><i class="fa-solid fa-triangle-exclamation"></i> CRITICAL SAFETY WARNING (RED FLAGS - SEEK EMERGENCY CARE)</div>
+                        <p style="color: #F87171; font-size: 0.9rem; margin-bottom: 8px;">
+                            If you experience any of the symptoms below, discontinue self-care immediately and call 911 or visit the nearest ER:
+                        </p>
+                        <ul id="red-flags-list">
+                            <!-- Filled by JS -->
+                        </ul>
+                    </div>
+
+                    <h3 id="guidelines-tailored-title" style="color: var(--cyan-primary); font-family: 'Outfit'; margin-bottom: 20px;">
+                        Tailored Guidelines: Support Plan
+                    </h3>
+
+                    <!-- 3-Column care layout -->
+                    <div class="guidelines-cols">
+                        <div class="guidelines-col">
+                            <h4 style="color: var(--blue-primary);"><i class="fa-solid fa-circle-stop"></i> Immediate Actions</h4>
+                            <p style="color:var(--text-muted); font-size:0.82rem; margin-bottom:10px;">Initial steps to manage physical discomfort and prioritize stability:</p>
+                            <div id="guidelines-immediate-list" style="display:flex; flex-direction:column; gap:8px;">
+                                <!-- Filled by JS -->
+                            </div>
+                        </div>
+                        <div class="guidelines-col">
+                            <h4 style="color: var(--green-primary);"><i class="fa-solid fa-apple-whole"></i> Dietary Adjustments</h4>
+                            <p style="color:var(--text-muted); font-size:0.82rem; margin-bottom:10px;">Nutritional adjustments to assist immunological recovery or reduce inflammation:</p>
+                            <div id="guidelines-dietary-list" style="display:flex; flex-direction:column; gap:8px;">
+                                <!-- Filled by JS -->
+                            </div>
+                        </div>
+                        <div class="guidelines-col">
+                            <h4 style="color: var(--purple-primary);"><i class="fa-solid fa-person-running"></i> Lifestyle Modifications</h4>
+                            <p style="color:var(--text-muted); font-size:0.82rem; margin-bottom:10px;">Longer-term actions to build biological resilience and eliminate pain triggers:</p>
+                            <div id="guidelines-lifestyle-list" style="display:flex; flex-direction:column; gap:8px;">
+                                <!-- Filled by JS -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="glass-card" style="margin-top: 30px; border-left: 5px solid var(--cyan-primary); padding: 15px 20px;">
+                        <span style="font-size:0.9rem; color:var(--text-primary);"><i class="fa-solid fa-lightbulb"></i> <strong>Pro-Tip:</strong> You can export this care plan or write specific questions about these guidelines in the '24/7 Conversational Chat' tab to discuss with your doctor.</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ==================== PANEL 5: CHAT ==================== -->
+            <section id="panel-chat" class="section-panel">
+                <h2 style="font-size: 2.2rem; margin-bottom: 20px;"><i class="fa-solid fa-comments"></i> 24/7 Conversational Patient Chat Assistant</h2>
+                <p style="color: var(--text-muted); margin-bottom: 20px;">Discuss your symptoms, ask questions about care guidelines, or seek clarifications about clinical facts in real-time. Our assistant communicates with professional medical facts and empathy.</p>
+                
+                <!-- Chat preset chips -->
+                <p style="font-size: 0.9rem; font-weight: 600; margin-bottom: 10px;"><i class="fa-solid fa-lightbulb"></i> Quick Queries (Click to ask):</p>
+                <div class="presets-container" style="margin-bottom: 20px;">
+                    <div class="preset-chip chat-preset-chip" data-query="What are the emergency red flags I should watch out for if I have chest pain?">What are chest pain emergency red flags?</div>
+                    <div class="preset-chip chat-preset-chip" data-query="What are the best home remedies and lifestyle modifications for dealing with migraine headaches?">How can I manage migraines at home?</div>
+                    <div class="preset-chip chat-preset-chip" data-query="What are the best foods and hydration tips to recover quickly from influenza fever and dry cough?">What dietary changes help when having a flu?</div>
+                    <div class="preset-chip chat-preset-chip" data-query="I am feeling extremely anxious and worried about my physical symptoms. Can you give me some reassurance?">I feel anxious about my symptoms. Help.</div>
+                </div>
+
+                <!-- Chat history area -->
+                <div class="glass-card">
+                    <div id="chat-history-box" class="chat-container">
+                        <!-- Filled dynamically by JS -->
+                    </div>
+
+                    <!-- Input row -->
+                    <div class="chat-input-row">
+                        <input type="text" id="chat-user-message" placeholder="Enter your health question here...">
+                        <button id="btn-send-chat" class="btn btn-primary" style="padding: 10px 24px;">
+                            <i class="fa-solid fa-paper-plane"></i> SEND
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Clear chat button -->
+                <button id="btn-clear-chat" class="btn btn-secondary" style="width: 100%; margin-top: 10px;">
+                    <i class="fa-solid fa-trash-can"></i> Clear Chat History
+                </button>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- Custom Frontend Javascript Coordinator -->
+    <script src="/static/js/main.js"></script>
+</body>
+</html>

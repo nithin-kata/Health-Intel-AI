@@ -1,4 +1,4 @@
-# db_handler.py - Secure Local SQLite Database Authentication
+# db_handler.py - Secure Local SQLite Database Authentication (Emoji-Free)
 
 import sqlite3
 import hashlib
@@ -59,7 +59,7 @@ def register_user(email, name, password):
     name = name.strip()
     
     if not email or not name or not password:
-        return False, "❌ All fields are required."
+        return False, "All fields are required."
         
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
@@ -68,7 +68,7 @@ def register_user(email, name, password):
     cursor.execute("SELECT email FROM users WHERE email = ?", (email,))
     if cursor.fetchone():
         conn.close()
-        return False, "❌ An account with this email address already exists."
+        return False, "An account with this email address already exists."
         
     # Generate hash and salt
     pwd_hash, salt = hash_password(password)
@@ -80,10 +80,10 @@ def register_user(email, name, password):
         )
         conn.commit()
         success = True
-        msg = "✅ Account successfully created!"
+        msg = "Account successfully created!"
     except Exception as e:
         success = False
-        msg = f"❌ Registration failed: {str(e)}"
+        msg = f"Registration failed: {str(e)}"
         
     conn.close()
     return success, msg
@@ -96,7 +96,7 @@ def authenticate_user(email, password):
     email = email.strip().lower()
     
     if not email or not password:
-        return False, "❌ Email and password are required.", None
+        return False, "Email and password are required.", None
         
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
@@ -106,7 +106,7 @@ def authenticate_user(email, password):
     conn.close()
     
     if not row:
-        return False, "❌ No account found matching this email.", None
+        return False, "No account found matching this email.", None
         
     name, stored_hash, salt = row
     
@@ -114,9 +114,9 @@ def authenticate_user(email, password):
     computed_hash, _ = hash_password(password, salt)
     
     if computed_hash == stored_hash:
-        return True, "✅ Access granted!", name
+        return True, "Access granted!", name
     else:
-        return False, "❌ Incorrect password. Please try again.", None
+        return False, "Incorrect password. Please try again.", None
 
 # Auto-initialize database on import
 init_db()

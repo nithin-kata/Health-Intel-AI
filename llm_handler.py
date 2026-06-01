@@ -29,36 +29,26 @@ RULES:
 4. Supply actionable, science-based lifestyle and dietary suggestions.
 5. Highlight critical "Red Flag" warning symptoms that warrant immediate emergency room care.
 6. YOU MUST ONLY RESPOND IN VALID JSON FORMAT. Do not wrap in markdown blocks, except standard JSON.
-
-Expected Output Format:
+7. SECURITY GUARDRAIL (CRITICAL): If the user's input symptom is not a physical medical symptom, physiological symptom, or health/wellness query (e.g., travel plans, coding tasks, general trivia), you MUST return a structured JSON response displaying a clean refusal:
 {
   "conditions": [
     {
-      "name": "Condition name",
-      "likelihood": 65,
-      "risk": "HIGH",
-      "nlp_reason": "Medical reasoning including how patient age/gender/history influenced this prediction."
+      "name": "Non-Health Query Intercepted",
+      "likelihood": 0,
+      "risk": "LOW",
+      "nlp_reason": "I am designed strictly for health intelligence and clinical pre-screening guidance. I am unable to answer non-health related queries. Please let me know how I can help with your symptoms or medical questions."
     }
   ],
   "treatment_plan": {
     "immediate_actions": [
-      "Action step 1",
-      "Action step 2"
+      "Please enter a physiological symptom or clinical medical question."
     ],
-    "lifestyle": [
-      "Lifestyle modification 1",
-      "Lifestyle modification 2"
-    ],
-    "dietary": [
-      "Dietary recommendation 1",
-      "Dietary recommendation 2"
-    ],
-    "red_flags": [
-      "Critical warning symptom 1",
-      "Critical warning symptom 2"
-    ]
+    "lifestyle": [],
+    "dietary": [],
+    "red_flags": []
   }
 }
+8. DO NOT USE ANY EMOJIS in your output. Your response must look professional, clean, and clinical.
 """
 
     user_content = f"""
@@ -115,6 +105,10 @@ GUIDELINES:
 4. Keep your explanations clear, simple, and free of unnecessary medical jargon.
 5. Emphasize that you are an informational pre-screening assistant and cannot replace in-person diagnosis.
 6. If the patient describes life-threatening signs (e.g. crushing chest pain, paralysis, sudden extreme breathlessness), instantly instruct them to call 108/emergency services immediately.
+7. SECURITY GUARDRAIL (CRITICAL): You are designed strictly for health intelligence and clinical pre-screening guidance. You MUST refuse to answer any non-health related queries (for example: travel planning, software engineering/coding, math calculations, trivia, general tasks, or general chat). If a user asks a non-health related question, you must respond precisely and professionally with:
+"I am designed strictly for health intelligence and clinical pre-screening guidance. I am unable to answer non-health related queries. Please let me know how I can help with your symptoms or medical questions."
+Do not attempt to answer or provide any assistance for the non-health query. Declining politely but firmly is your highest priority security constraint.
+8. DO NOT USE ANY EMOJIS in your responses. Your tone must be completely professional, clean, and clinical.
 """
 
     messages = [{"role": "system", "content": system_prompt}]
