@@ -25,6 +25,68 @@ app = Flask(__name__)
 # Generate a cryptographically secure random session secret key
 app.secret_key = os.environ.get("FLASK_SECRET_KEY", os.urandom(24).hex())
 
+# Auto-copy generated background image if needed
+import shutil
+src_bg = r"C:\Users\NITHIN KATA\.gemini\antigravity-ide\brain\8d96c5b0-a5db-4ccd-ae86-0c584df81956\auth_bg_1780462200595.png"
+dst_bg = os.path.join(app.root_path, "static", "auth_bg.png")
+if os.path.exists(src_bg) and not os.path.exists(dst_bg):
+    try:
+        os.makedirs(os.path.dirname(dst_bg), exist_ok=True)
+        shutil.copy(src_bg, dst_bg)
+    except Exception as e:
+        print(f"Failed to copy background image: {e}")
+
+
+# Helper to perform asynchronous Groq API validation
+def run_groq_diagnostic():
+    import threading
+    def check():
+        import json
+        from openai import OpenAI
+        api_key = os.environ.get("GROQ_API_KEY", "")
+        status = {
+            "configured": bool(api_key),
+            "key_prefix": api_key[:8] if api_key else "None",
+            "working": False,
+            "error": None,
+            "model": "llama-3.3-70b-versatile",
+            "timestamp": time.time()
+        }
+        if not api_key:
+            status["error"] = "GROQ_API_KEY is missing from environment"
+        else:
+            try:
+                client = OpenAI(
+                    api_key=api_key,
+                    base_url="https://api.groq.com/openai/v1"
+                )
+                response = client.chat.completions.create(
+                    model="llama-3.3-70b-versatile",
+                    messages=[
+                        {"role": "system", "content": "You are a health pre-screening test bot."},
+                        {"role": "user", "content": "API test. Reply with 'OK'."}
+                    ],
+                    max_tokens=10,
+                    temperature=0.0
+                )
+                status["working"] = True
+                status["response"] = response.choices[0].message.content.strip()
+            except Exception as e:
+                status["error"] = str(e)
+        
+        status_path = os.path.join(app.root_path, "static", "groq_test_status.json")
+        try:
+            os.makedirs(os.path.dirname(status_path), exist_ok=True)
+            with open(status_path, "w", encoding="utf-8") as f:
+                json.dump(status, f, indent=4)
+        except Exception as e:
+            print(f"Failed to write Groq test status: {e}")
+
+    threading.Thread(target=check, daemon=True).start()
+
+# Launch diagnostic on server load
+run_groq_diagnostic()
+
 # Import components
 from db_handler import register_user, authenticate_user
 from llm_handler import analyze_symptoms_groq, chat_with_empathy_groq
@@ -42,6 +104,39 @@ def index():
     Serves the Single Page Application HTML5 master structure.
     """
     return render_template("index.html")
+
+@app.route("/api/groq_status", methods=["GET"])
+def groq_status():
+    status_path = os.path.join(app.root_path, "static", "groq_test_status.json")
+    force_check = request.args.get("force", "false").lower() == "true"
+    
+    should_run = False
+    if force_check or not os.path.exists(status_path):
+        should_run = True
+    else:
+        try:
+            with open(status_path, "r", encoding="utf-8") as f:
+                import json
+                status = json.load(f)
+                if time.time() - status.get("timestamp", 0) > 300:  # 5 minutes cache
+                    should_run = True
+        except Exception:
+            should_run = True
+            
+    if should_run:
+        run_groq_diagnostic()
+        time.sleep(0.5)  # Allow short time to perform check if fast
+        
+    if os.path.exists(status_path):
+        try:
+            with open(status_path, "r", encoding="utf-8") as f:
+                import json
+                status = json.load(f)
+                return jsonify(status)
+        except Exception as e:
+            return jsonify({"success": False, "error": str(e)})
+            
+    return jsonify({"success": False, "message": "Diagnostic check initiated. Please wait..."})
 
 # ==================== AUTHENTICATION API ENDPOINTS ====================
 

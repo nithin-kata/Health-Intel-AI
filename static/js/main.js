@@ -150,6 +150,7 @@ const dom = {
 document.addEventListener("DOMContentLoaded", () => {
     setupEventHandlers();
     checkActiveSession();
+    fetchGroqApiStatus();
 });
 
 // --- Check Session ---
@@ -193,6 +194,62 @@ function showLoggedApp() {
     // Initialize Dashboard Charts
     loadDashboardData();
     updateSidebarEngineBadge();
+    
+    // Handle any pending pre-screening symptom
+    if (state.pendingSymptomText) {
+        handlePendingSymptom();
+    }
+}
+
+// --- Handle landing page pre-screening redirection to analyzer ---
+function handlePendingSymptom() {
+    if (state.pendingSymptomText) {
+        // Switch to analyzer tab
+        switchTab("analyzer");
+        
+        // Fill analyzer fields
+        if (dom.symptomDesc) {
+            dom.symptomDesc.value = state.pendingSymptomText;
+            dom.symptomDesc.dispatchEvent(new Event('input'));
+        }
+        
+        // Clear pending symptom
+        state.pendingSymptomText = null;
+        
+        // Trigger run analysis
+        if (dom.btnRunAnalysis) {
+            setTimeout(() => {
+                dom.btnRunAnalysis.click();
+            }, 100);
+        }
+    }
+}
+
+async function fetchGroqApiStatus() {
+    const badge = document.getElementById("groq-api-badge");
+    if (!badge) return;
+    
+    const dot = badge.querySelector(".api-status-dot");
+    const text = badge.querySelector(".api-status-text");
+    
+    try {
+        const response = await fetch("/api/groq_status");
+        const status = await response.json();
+        
+        if (status.working) {
+            dot.className = "api-status-dot pulse-green";
+            text.textContent = "Groq LPU Engine: Active";
+            text.title = `Model: ${status.model}`;
+        } else {
+            dot.className = "api-status-dot pulse-red";
+            text.textContent = "Groq LPU Engine: Offline";
+            text.title = `Error: ${status.error || 'Unknown error'}`;
+        }
+    } catch (e) {
+        dot.className = "api-status-dot pulse-red";
+        text.textContent = "Groq LPU Engine: Offline";
+        text.title = "Failed to connect to status endpoint.";
+    }
 }
 
 // --- Bind Interactive Events ---
@@ -200,6 +257,44 @@ function setupEventHandlers() {
     // Landing CTA
     dom.btnEnterAuth.addEventListener("click", () => showAuth());
     dom.btnBackHome.addEventListener("click", () => showLanding());
+    
+    // Interactive Landing symptom pre-screening
+    const landingInput = document.getElementById("landing-symptom-input");
+    const landingBtnPrescreen = document.getElementById("landing-btn-prescreen");
+    
+    if (landingBtnPrescreen && landingInput) {
+        landingBtnPrescreen.addEventListener("click", () => {
+            const val = landingInput.value.trim();
+            if (val) {
+                state.pendingSymptomText = val;
+                if (state.loggedIn) {
+                    showLoggedApp();
+                } else {
+                    showAuth();
+                }
+            }
+        });
+        
+        landingInput.addEventListener("keydown", (e) => {
+            if (e.key === "Enter") {
+                landingBtnPrescreen.click();
+            }
+        });
+    }
+    
+    document.querySelectorAll(".landing-symptom-chip").forEach(chip => {
+        chip.addEventListener("click", (e) => {
+            const symptom = e.currentTarget.getAttribute("data-symptom");
+            if (symptom) {
+                state.pendingSymptomText = symptom;
+                if (state.loggedIn) {
+                    showLoggedApp();
+                } else {
+                    showAuth();
+                }
+            }
+        });
+    });
     
     // Auth Tab switching
     dom.tabLoginBtn.addEventListener("click", () => {

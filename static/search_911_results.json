@@ -1,0 +1,67 @@
+[
+    {
+        "file": "app.py",
+        "line": 85,
+        "content": "# Search for occurrences of 911 in the codebase"
+    },
+    {
+        "file": "app.py",
+        "line": 97,
+        "content": "if \"911\" in line:"
+    },
+    {
+        "file": "app.py",
+        "line": 105,
+        "content": "results_path = os.path.join(app.root_path, \"static\", \"search_911_results.json\")"
+    },
+    {
+        "file": "app.py",
+        "line": 109,
+        "content": "print(f\"Failed to run 911 search: {e}\")"
+    },
+    {
+        "file": "static/search_911_results.json",
+        "line": 5,
+        "content": "\"content\": \"# Search for occurrences of 911 in the codebase\""
+    },
+    {
+        "file": "static/search_911_results.json",
+        "line": 10,
+        "content": "\"content\": \"if \\\"911\\\" in line:\""
+    },
+    {
+        "file": "static/search_911_results.json",
+        "line": 15,
+        "content": "\"content\": \"results_path = os.path.join(app.root_path, \\\"static\\\", \\\"search_911_results.json\\\")\""
+    },
+    {
+        "file": "static/search_911_results.json",
+        "line": 20,
+        "content": "\"content\": \"print(f\\\"Failed to run 911 search: {e}\\\")\""
+    },
+    {
+        "file": "static/search_911_results.json",
+        "line": 25,
+        "content": "\"content\": \"if \\\"emergency\\\" in q or \\\"die\\\" in q or \\\"heart attack\\\" in q or \\\"severe pain\\\" in q or \\\"911\\\" in q or \\\"108\\\" in q:\""
+    },
+    {
+        "file": "static/search_911_results.json",
+        "line": 30,
+        "content": "\"content\": \"<i class=\\\"fa-solid fa-triangle-exclamation\\\"></i> <strong>MEDICAL DISCLAIMER:</strong> This AI system provides educational pre-screening guidance only. It does NOT replace professional physical exams, diagnosis, or emergency ER care. <strong>If in emergency, call 911 immediately.</strong>\""
+    },
+    {
+        "file": "static/search_911_results.json",
+        "line": 35,
+        "content": "\"content\": \"If you experience any of the symptoms below, discontinue self-care immediately and call 911 or visit the nearest ER:\""
+    },
+    {
+        "file": "templates/index.html",
+        "line": 294,
+        "content": "<i class=\"fa-solid fa-triangle-exclamation\"></i> <strong>MEDICAL DISCLAIMER:</strong> This AI system provides educational pre-screening guidance only. It does NOT replace professional physical exams, diagnosis, or emergency ER care. <strong>If in emergency, call 911 immediately.</strong>"
+    },
+    {
+        "file": "templates/index.html",
+        "line": 486,
+        "content": "If you experience any of the symptoms below, discontinue self-care immediately and call 911 or visit the nearest ER:"
+    }
+]

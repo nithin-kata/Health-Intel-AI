@@ -270,7 +270,7 @@ def get_simulated_chat_response(query_text):
         if not any(health_word in q for health_word in ["health", "diet", "nutrition", "medical", "disease", "symptom", "pain"]):
             return "I am designed strictly for health intelligence and clinical pre-screening guidance. I am unable to answer non-health related queries. Please let me know how I can help with your symptoms or medical questions."
             
-    if "emergency" in q or "die" in q or "heart attack" in q or "severe pain" in q or "911" in q or "108" in q:
+    if "emergency" in q or "die" in q or "heart attack" in q or "severe pain" in q or "108" in q:
         return CHAT_DIALOGUES["emergency"]
     elif "migraine" in q or "headache" in q or "head hurt" in q:
         return CHAT_DIALOGUES["migraine"]

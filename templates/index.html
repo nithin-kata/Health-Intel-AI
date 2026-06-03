@@ -17,58 +17,120 @@
 
     <!-- ==================== 1. LANDING PAGE OVERLAY ==================== -->
     <div id="landing-page" class="full-overlay">
+        <!-- Floating Glass Navigation Bar -->
         <div class="mock-nav">
             <div style="display:flex; align-items:center; gap:8px;">
                 <span style="font-size:1.8rem;"><i class="fa-solid fa-hand-holding-medical" style="color:var(--cyan-primary);"></i></span>
                 <span style="font-family:'Outfit'; font-weight:800; font-size:1.45rem; color:#FFF;">Health Intel AI</span>
             </div>
-            <div style="color:var(--text-muted); font-size:0.85rem; font-family:'Outfit'; font-weight:600; letter-spacing: 0.05em;">PREMIUM PRE-SCREENING</div>
+            <div style="display:flex; align-items:center; gap:24px;">
+                <div class="nav-links" style="display:flex; gap:20px; font-size:0.9rem; font-weight:600;">
+                    <span class="nav-link-item" style="cursor:pointer; color:var(--text-muted); transition:color 0.2s;" onclick="document.querySelector('.landing-grid-title').scrollIntoView({behavior:'smooth'})">Explore Modules</span>
+                    <span class="nav-link-item" style="cursor:pointer; color:var(--text-muted); transition:color 0.2s;" onclick="document.getElementById('vital-simulator-panel').scrollIntoView({behavior:'smooth'})">Live Telemetry</span>
+                </div>
+                <div id="groq-api-badge" class="api-status-badge">
+                    <span class="api-status-dot pulse-yellow"></span>
+                    <span class="api-status-text">Checking Groq LPU...</span>
+                </div>
+            </div>
         </div>
 
         <div style="display: flex; flex-wrap: wrap; gap: 40px; align-items: center; margin-top: 20px;">
             <!-- Left Text Column -->
-            <div style="flex: 6; min-width: 320px;">
+            <div style="flex: 6.2; min-width: 320px;">
                 <span class="badge badge-low" style="font-size: 0.85rem; padding: 6px 14px; margin-bottom: 20px;">
                     <i class="fa-solid fa-shield-halved"></i> Clinical Intelligence System
                 </span>
-                <h1 style="font-size: 3.4rem; font-family:'Outfit'; font-weight:900; line-height:1.1; margin-bottom:20px;">
-                    The Future of <span style="background: linear-gradient(135deg, var(--cyan-primary) 0%, var(--blue-primary) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Healthcare Intelligence</span>
+                <h1 style="font-size: 3.5rem; font-family:'Outfit'; font-weight:900; line-height:1.15; margin-bottom:20px;">
+                    Predictive Diagnostics at <br><span style="background: linear-gradient(135deg, var(--cyan-primary) 0%, var(--blue-primary) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Quantum Speed</span>
                 </h1>
-                <p style="font-size: 1.15rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 35px; font-family:'Inter';">
-                    Empowering individuals with clinical-grade symptom assessments, visual health analytics, and empathetic conversational guidance.
-                    Equipped with ultra-fast LLM capabilities to deliver predictive wellness pre-screenings in seconds.
+                <p style="font-size: 1.15rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 30px; font-family:'Inter';">
+                    Empowering patients with clinical-grade symptom assessments, instant health telemetry charts, and empathetic conversational guidance.
+                    Powered by high-velocity Llama-3.3-70B LPU acceleration.
                 </p>
+
+                <!-- Interactive Pre-screening Search Box -->
+                <div class="landing-symptom-search-box" style="margin-bottom: 25px;">
+                    <div style="position: relative; display: flex; align-items: center; width: 100%; max-width: 580px;">
+                        <i class="fa-solid fa-stethoscope" style="position: absolute; left: 16px; color: var(--cyan-primary); font-size: 1.2rem; z-index: 10;"></i>
+                        <input type="text" id="landing-symptom-input" placeholder="Describe symptoms (e.g. throbbing headache, fever, sore throat)..." style="width: 100%; padding: 18px 130px 18px 48px; border-radius: 16px; border: 1px solid rgba(255, 255, 255, 0.12); background: rgba(15, 23, 42, 0.45); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); color: #FFF; font-family: 'Inter'; font-size: 0.95rem; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05); outline: none; transition: border-color 0.3s, box-shadow 0.3s;">
+                        <button id="landing-btn-prescreen" class="btn btn-primary" style="position: absolute; right: 8px; font-size: 0.88rem; padding: 10px 20px; border-radius: 10px; box-shadow: 0 4px 12px rgba(6, 182, 212, 0.25);">Pre-Screen</button>
+                    </div>
+                </div>
+
+                <!-- Quick Symptom Tags -->
+                <div style="margin-bottom: 35px;">
+                    <div style="font-size: 0.82rem; color: var(--text-muted); font-weight: 700; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.05em;">Or choose a quick diagnostic preset:</div>
+                    <div class="landing-symptom-chips" style="display: flex; flex-wrap: wrap; gap: 10px;">
+                        <div class="landing-symptom-chip" data-symptom="Severe headache with throbbing pain and light sensitivity"><i class="fa-solid fa-brain"></i> Migraine Pain</div>
+                        <div class="landing-symptom-chip" data-symptom="Tightness in chest, shortness of breath, and fatigue"><i class="fa-solid fa-heart-pulse"></i> Chest Tightness</div>
+                        <div class="landing-symptom-chip" data-symptom="High fever, body aches, sore throat and dry cough"><i class="fa-solid fa-thermometer"></i> Fever & Cough</div>
+                        <div class="landing-symptom-chip" data-symptom="Dehydration symptoms, muscle weakness, and dry mouth"><i class="fa-solid fa-droplet"></i> Dehydration</div>
+                    </div>
+                </div>
+
                 <div style="display: flex; gap: 20px; align-items: center;">
                     <button id="btn-enter-auth" class="btn btn-primary" style="font-size: 1rem; padding: 14px 28px;">
-                        <i class="fa-solid fa-right-to-bracket"></i> ENTER PLATFORM
+                        <i class="fa-solid fa-right-to-bracket"></i> ENTER FULL PLATFORM
                     </button>
-                    <span style="color:var(--text-muted); font-size:0.9rem; font-weight: 500;">🔒 100% Client-Side Safe</span>
+                    <span style="color:var(--text-muted); font-size:0.9rem; font-weight: 500;">🔒 100% Secure HIPAA-grade Care</span>
                 </div>
             </div>
 
-            <!-- Right 3D Flip Card Column -->
-            <div style="flex: 4; min-width: 300px; display: flex; justify-content: center;">
-                <div class="scene3d">
-                    <div class="card3d">
-                        <div class="card3d-front">
-                            <div class="pulse-badge">Hover to Flip</div>
-                            <i class="fa-solid fa-briefcase-medical floating-icon" style="color:var(--cyan-primary); font-size:4.5rem; display:block; margin-bottom:25px;"></i>
-                            <h3 style="color:#FFF; font-family:'Outfit'; font-size:1.6rem; font-weight:700; margin:0 0 10px 0;">Health Intel AI</h3>
-                            <p style="color:var(--text-muted); font-size:0.9rem; line-height:1.4; margin:0;">Generative Pre-screening & High-Fidelity Vitals Dashboarding</p>
+            <!-- Right 3D Holographic Vital Simulator Column -->
+            <div style="flex: 3.8; min-width: 320px; display: flex; justify-content: center;">
+                <div id="vital-simulator-panel" class="hologram-console-card">
+                    <div class="hologram-scanner"></div>
+                    
+                    <div class="hologram-header" style="display:flex; justify-content:space-between; align-items:center; width:100%; border-bottom:1px solid rgba(255,255,255,0.08); padding-bottom:12px; margin-bottom:15px;">
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <span class="hologram-pulse-indicator"></span>
+                            <span style="font-family:'Outfit'; font-weight:700; font-size:0.85rem; letter-spacing:0.05em; color:var(--cyan-primary); text-transform:uppercase;">Live Telemetry Simulator</span>
                         </div>
-                        <div class="card3d-back">
-                            <span class="badge badge-high" style="margin-bottom:15px;">Advanced Analytics</span>
-                            <h3 style="color:#FFF; font-family:'Outfit'; font-size:1.6rem; font-weight:700; margin:0 0 10px 0;">LPU Accelerated</h3>
-                            <p style="color:#CBD5E1; font-size:0.9rem; line-height:1.4; margin:0 0 20px 0;">Powered by Llama-3.3-70B on high-speed inference engines.</p>
-                            <div style="font-size:0.75rem; color:var(--purple-primary); font-weight:700; text-transform:uppercase; letter-spacing: 0.05em;">Click Enter Platform to Start</div>
+                        <div style="color:var(--text-muted); font-family:monospace; font-size:0.75rem;">LPU-ACTIVE</div>
+                    </div>
+
+                    <!-- Heart rate monitor display -->
+                    <div style="display: flex; align-items: center; justify-content: space-between; width: 100%; margin-bottom: 15px;">
+                        <div style="display: flex; flex-direction: column;">
+                            <span style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Heart Rate</span>
+                            <span class="telemetry-value" style="font-size: 2.2rem; font-family:'Outfit'; font-weight: 800; color: #FFF; text-shadow: 0 0 10px rgba(6, 182, 212, 0.4);">
+                                72 <span style="font-size: 0.9rem; color: var(--cyan-primary); font-weight:500;">BPM</span>
+                            </span>
                         </div>
+                        <!-- Heartbeat pulse wave SVG -->
+                        <div class="pulse-wave-wrapper" style="width: 140px; height: 50px; overflow:hidden;">
+                            <svg viewBox="0 0 140 50" class="pulse-wave-svg" style="width:100%; height:100%;">
+                                <path class="pulse-wave-path" d="M0,25 L30,25 L35,15 L40,35 L45,25 L65,25 L70,5 L75,45 L80,25 L100,25 L105,18 L110,32 L115,25 L140,25" fill="none" stroke="var(--cyan-primary)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </div>
+                    </div>
+
+                    <!-- Minor metrics grid -->
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; width: 100%; margin-bottom: 20px;">
+                        <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.04); border-radius: 12px; padding: 10px; display: flex; flex-direction: column;">
+                            <span style="font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase;">SpO2 Levels</span>
+                            <span style="font-size: 1.15rem; font-family:'Outfit'; font-weight:700; color:#FFF;">98% <span style="font-size:0.75rem; color:var(--green-primary); font-weight:500;"><i class="fa-solid fa-arrow-trend-up"></i> Normal</span></span>
+                        </div>
+                        <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.04); border-radius: 12px; padding: 10px; display: flex; flex-direction: column;">
+                            <span style="font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase;">LPU Latency</span>
+                            <span style="font-size: 1.15rem; font-family:'Outfit'; font-weight:700; color:#FFF;">0.28s <span style="font-size:0.75rem; color:var(--purple-primary); font-weight:500;">Fast</span></span>
+                        </div>
+                    </div>
+
+                    <!-- Holographic diagnostic ticker console -->
+                    <div class="hologram-console" style="width: 100%; background: rgba(0, 0, 0, 0.4); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 12px; padding: 12px; font-family: monospace; font-size: 0.72rem; line-height: 1.4; color: var(--cyan-primary); text-align: left; height: 110px; overflow: hidden; display: flex; flex-direction: column-reverse; justify-content: flex-start; gap: 4px; box-shadow: inset 0 2px 10px rgba(0,0,0,0.8);">
+                        <div class="console-line line-4">>>> System online. Awaiting patient input.</div>
+                        <div class="console-line line-3">>>> Health index monitoring initialized.</div>
+                        <div class="console-line line-2">>>> LPU inference pipeline ready: Groq-Llama3-70B.</div>
+                        <div class="console-line line-1">>>> Establishing clinical pre-screening protocols...</div>
                     </div>
                 </div>
             </div>
         </div>
 
         <hr style="border-top: 1px solid var(--border-color); margin: 60px 0 40px 0;">
-        <h3 style="font-family:'Outfit'; color:#FFF; text-align:center; font-size:1.7rem; margin-bottom:25px;">Explore Our Core Modules</h3>
+        <h3 class="landing-grid-title" style="font-family:'Outfit'; color:#FFF; text-align:center; font-size:1.7rem; margin-bottom:25px;">Explore Our Core Modules</h3>
         
         <!-- 4 Grid Cards -->
         <div class="landing-grid">
@@ -229,7 +291,7 @@
 
             <!-- Medical Disclaimer -->
             <div class="sidebar-disclaimer">
-                <i class="fa-solid fa-triangle-exclamation"></i> <strong>MEDICAL DISCLAIMER:</strong> This AI system provides educational pre-screening guidance only. It does NOT replace professional physical exams, diagnosis, or emergency ER care. <strong>If in emergency, call 911 immediately.</strong>
+                <i class="fa-solid fa-triangle-exclamation"></i> <strong>MEDICAL DISCLAIMER:</strong> This AI system provides educational pre-screening guidance only. It does NOT replace professional physical exams, diagnosis, or emergency ER care. <strong>If in emergency, call 108 immediately.</strong>
             </div>
 
             <!-- Logout Link -->
@@ -421,7 +483,7 @@
                     <div class="red-flag-box">
                         <div class="red-flag-title"><i class="fa-solid fa-triangle-exclamation"></i> CRITICAL SAFETY WARNING (RED FLAGS - SEEK EMERGENCY CARE)</div>
                         <p style="color: #F87171; font-size: 0.9rem; margin-bottom: 8px;">
-                            If you experience any of the symptoms below, discontinue self-care immediately and call 911 or visit the nearest ER:
+                            If you experience any of the symptoms below, discontinue self-care immediately and call 108 or visit the nearest ER:
                         </p>
                         <ul id="red-flags-list">
                             <!-- Filled by JS -->
